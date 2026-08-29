@@ -1,0 +1,36 @@
+dma-proxy-sha3 — kernel driver for the SHA-3 accelerator
+========================================================
+
+Kernel module that feeds the SHA-3 AXI-Stream IP core through AXI DMA in
+scatter-gather mode. It exposes two userspace interfaces:
+
+  * zero-copy   — userspace pins its own buffers, the driver maps them for
+                  DMA directly (tool: ../../C/user-space_files/sha3_hash_zerocopy.c)
+  * legacy mmap — buffers allocated by the driver on the ALLOC_BUFFERS ioctl
+                  and mmap'd into userspace (tool: sha3_hash_legacy.c)
+
+Build (PetaLinux)
+-----------------
+The module is packaged by the Yocto recipe ../../dma-proxy-sha3.bb:
+
+    petalinux-build -c dma-proxy-sha3
+
+or, against an already built kernel tree:
+
+    make -C <kernel-src> M=$(pwd)
+
+Device tree
+-----------
+The driver binds to:
+
+    dma_proxy_sha3 {
+        compatible = "xlnx,dma_proxy_sha3";
+        dmas = <&axi_dma_0 0 &axi_dma_0 1>;
+        dma-names = "tx_channel", "rx_channel";
+    };
+
+Load
+----
+    insmod dma-proxy-sha3.ko
+
+License: GPL-2.0 (see COPYING).

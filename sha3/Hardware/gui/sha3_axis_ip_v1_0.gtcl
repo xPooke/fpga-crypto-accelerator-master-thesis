@@ -1,0 +1,4 @@
+# This file is automatically written.  Do not modify.
+proc gen_USERPARAMETER_SHA3_VERSION_ENABLEMENT {ALGORITHM } {expr [string equal $ALGORITHM "SHA3"]}
+proc gen_USERPARAMETER_SHAKE_VERSION_ENABLEMENT {ALGORITHM } {expr [string equal $ALGORITHM "SHAKE"] || [string equal $ALGORITHM "CSHAKE"]}
+proc gen_USERPARAMETER_SHAKE_BITS_ENABLEMENT {ALGORITHM } {expr [string equal $ALGORITHM "SHAKE"] || [string equal $ALGORITHM "CSHAKE"]}
