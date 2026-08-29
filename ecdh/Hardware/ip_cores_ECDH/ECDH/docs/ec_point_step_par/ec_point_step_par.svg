@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="470" viewBox="0 0 780 470" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ah" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#5c6a72"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="780" height="470" fill="#ffffff"/>
+
+  <!-- title -->
+  <text x="24" y="34" font-size="19" font-weight="700" fill="#1b2329">Paralelni korak Montgomery lestvice</text>
+  <text x="24" y="56" font-size="13" fill="#5c6a72">3 množača · 2 runde · SQR/ADD lokalne kombinacione mreže (0 taktova)</text>
+
+  <!-- time axis -->
+  <text x="24" y="92" font-size="12" fill="#5c6a72">množač</text>
+  <line x1="150" y1="80" x2="150" y2="300" stroke="#d4dcdf" stroke-width="1"/>
+  <line x1="410" y1="80" x2="410" y2="300" stroke="#d4dcdf" stroke-width="1"/>
+  <text x="240" y="78" font-size="13" font-weight="600" fill="#0c7a4d" text-anchor="middle">RUNDA 1</text>
+  <text x="500" y="78" font-size="13" font-weight="600" fill="#0c7a4d" text-anchor="middle">RUNDA 2</text>
+  <text x="330" y="315" font-size="11" fill="#96690a" text-anchor="middle">⌈m/D⌉ taktova</text>
+  <text x="590" y="315" font-size="11" fill="#96690a" text-anchor="middle">⌈m/D⌉ taktova</text>
+
+  <!-- lane labels -->
+  <text x="30" y="128" font-size="12" fill="#1b2329">množač 0</text>
+  <text x="30" y="178" font-size="12" fill="#1b2329">množač 1</text>
+  <text x="30" y="228" font-size="12" fill="#1b2329">množač 2</text>
+
+  <!-- Round 1 MUL boxes -->
+  <g font-size="13" font-weight="600">
+    <rect x="160" y="108" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="176" y="130" fill="#0c7a4d">M1 = X2·Z1</text>
+    <rect x="160" y="158" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="176" y="180" fill="#0c7a4d">M2 = X1·Z2</text>
+    <rect x="160" y="208" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="176" y="230" fill="#0c7a4d">M10 = X1²·Z1²</text>
+  </g>
+
+  <!-- Round 2 MUL boxes -->
+  <g font-size="13" font-weight="600">
+    <rect x="420" y="108" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="436" y="130" fill="#0c7a4d">M5 = T1·T2</text>
+    <rect x="420" y="158" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="436" y="180" fill="#0c7a4d">M6 = xb·nZ2</text>
+    <rect x="420" y="208" width="200" height="34" rx="5" fill="#e9f5ee" stroke="#0c7a4d"/>
+    <text x="436" y="230" fill="#0c7a4d">M13 = b·Z1⁴</text>
+  </g>
+
+  <!-- dependency arrows: M1,M2 -> M5,M6 -->
+  <path d="M360,125 L418,125" stroke="#5c6a72" fill="none" marker-end="url(#ah)"/>
+  <path d="M360,175 L418,175" stroke="#5c6a72" fill="none" marker-end="url(#ah)"/>
+  <path d="M360,133 C388,150 392,158 418,172" stroke="#5c6a72" fill="none" stroke-dasharray="3,3" marker-end="url(#ah)"/>
+  <text x="388" y="258" font-size="10.5" fill="#5c6a72" text-anchor="middle">M5, M6 čekaju M1, M2 (dubina 2)</text>
+
+  <!-- local combinational outputs -->
+  <rect x="24" y="336" width="732" height="60" rx="6" fill="#f3f6f6" stroke="#c2ccd0"/>
+  <text x="40" y="358" font-size="12" font-weight="600" fill="#1b2329">Lokalno (kombinaciono, 0 taktova):</text>
+  <text x="40" y="380" font-size="12.5" fill="#0b6e83" font-family="monospace">nZ1 = M10   ·   nX1 = X1⁴ + b·Z1⁴   ·   nZ2 = (M1+M2)²   ·   nX2 = M5 + M6</text>
+
+  <!-- latency comparison -->
+  <text x="24" y="430" font-size="12.5" fill="#1b2329"><tspan font-weight="700">Latencija:</tspan> paralelni korak ≈ 2·⌈m/D⌉ + režija  (B-571, D=32: ~43 t)  vs  osnovni = 6 MUL u nizu ≈ ~172 t  →  ~4× po koraku</text>
+  <text x="24" y="452" font-size="11" fill="#5c6a72">Dubina zavisnosti = 2 → 3 množača je optimum (4. bi dangubio). Rezultat bit-identičan osnovnom jezgru.</text>
+</svg>

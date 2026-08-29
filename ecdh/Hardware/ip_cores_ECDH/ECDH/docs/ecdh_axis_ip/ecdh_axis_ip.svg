@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5f6368"/></marker>
+    <marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a73e8"/></marker>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#188038"/></marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c5221f"/></marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="680" fill="#f7f7f5"/>
+  <text x="480" y="30" text-anchor="middle" font-size="21" font-weight="700" fill="#202124">ecdh_axis_ip — nivo 2: AXIS omotač (obrazac sha3_axis_ip)</text>
+  <text x="480" y="51" text-anchor="middle" font-size="12.5" fill="#5f6368">paket (cmd‖Qx‖Qy) preko s_axis · privatni k side-band strobom · start = TLAST I k učitano</text>
+
+  <!-- ============ omotac ============ -->
+  <rect x="60" y="92" width="840" height="308" rx="10" fill="#fef7e0" stroke="#f9ab00" stroke-width="1.8"/>
+  <text x="80" y="116" font-size="14" font-weight="700" fill="#b06000">ecdh_axis_ip</text>
+  <text x="880" y="116" text-anchor="end" font-size="10" fill="#5f6368">generici: G_M, G_D, G_F, G_B (kriva), DATA_WIDTH ∈ {8,16,32,64}</text>
+
+  <!-- k side-band latch -->
+  <rect x="100" y="130" width="210" height="52" rx="8" fill="#fce8e6" stroke="#c5221f" stroke-width="1.5"/>
+  <text x="205" y="150" text-anchor="middle" font-size="11.5" font-weight="700" fill="#c5221f">r_k  ⇐  i_k  (strob i_k_valid)</text>
+  <text x="205" y="167" text-anchor="middle" font-size="9.5" fill="#5f6368">1-takt impuls uzorkuje k · r_k_loaded=1</text>
+  <text x="205" y="178" text-anchor="middle" font-size="9" fill="#5f6368">pamti se kroz KEYGEN i SHARED (isti k)</text>
+
+  <!-- deserijalizator -->
+  <rect x="100" y="196" width="210" height="150" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="205" y="217" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">DESERIJALIZATOR</text>
+  <text x="205" y="232" text-anchor="middle" font-size="9.5" fill="#5f6368">broji reči paketa, puni redom:</text>
+  <g font-size="10.5" fill="#202124">
+    <rect x="120" y="242" width="170" height="24" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="130" y="258">r_cmd (1 reč: 0=KEYGEN,1=SHARED)</text>
+    <rect x="120" y="272" width="170" height="24" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="130" y="288">r_qx  (⌈G_M/DW⌉ reči)</text>
+    <rect x="120" y="302" width="170" height="24" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="130" y="318">r_qy  (⌈G_M/DW⌉ reči)</text>
+  </g>
+
+  <!-- ecdh_top -->
+  <rect x="380" y="150" width="190" height="196" rx="8" fill="#fff" stroke="#5f6368" stroke-width="2"/>
+  <text x="475" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#202124">ecdh_top</text>
+  <text x="475" y="194" text-anchor="middle" font-size="10" fill="#5f6368">start/done koprocesor</text>
+  <text x="475" y="209" text-anchor="middle" font-size="10" fill="#5f6368">(nivo 3: ecdh_top.svg)</text>
+  <g font-size="10" fill="#202124">
+    <text x="398" y="234">i_k, i_xb, i_yb, i_b</text>
+    <text x="398" y="252">i_start → o_busy</text>
+    <text x="398" y="270">o_done (1-takt puls)</text>
+    <text x="398" y="288">o_x, o_y  (afino k·P)</text>
+  </g>
+  <text x="475" y="318" text-anchor="middle" font-size="9.5" fill="#5f6368">S_LADDER ~285k taktova (D=8)</text>
+  <text x="475" y="332" text-anchor="middle" font-size="9.5" fill="#5f6368">+ S_MXY ~5k taktova</text>
+
+  <!-- serijalizator -->
+  <rect x="640" y="150" width="220" height="196" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="750" y="171" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">SERIJALIZATOR</text>
+  <text x="750" y="188" text-anchor="middle" font-size="10" fill="#5f6368">r_cmd bira izlaz, reč po reč,</text>
+  <text x="750" y="202" text-anchor="middle" font-size="10" fill="#5f6368">čeka tready (backpressure)</text>
+  <rect x="660" y="214" width="180" height="46" rx="6" fill="#e8f0fe" stroke="#1a73e8"/>
+  <text x="750" y="233" text-anchor="middle" font-size="10.5" font-weight="600" fill="#174ea6">KEYGEN → m_axis</text>
+  <text x="750" y="250" text-anchor="middle" font-size="10" fill="#202124">x ‖ y  (2·⌈G_M/DW⌉ reči)</text>
+  <rect x="660" y="268" width="180" height="46" rx="6" fill="#e6f4ea" stroke="#188038"/>
+  <text x="750" y="287" text-anchor="middle" font-size="10.5" font-weight="700" fill="#137333">SHARED → m_axis_z</text>
+  <text x="750" y="304" text-anchor="middle" font-size="10" fill="#202124">samo x(S)  (⌈G_M/DW⌉ reči)</text>
+  <text x="750" y="332" text-anchor="middle" font-size="9.5" fill="#5f6368">drugi izlaz ćuti · TLAST na kraju · tkeep=1…1</text>
+
+  <!-- strelice -->
+  <line x1="205" y1="96" x2="205" y2="128" stroke="#c5221f" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="214" y="114" font-size="10" fill="#c5221f" font-weight="700">i_k + i_k_valid</text>
+  <line x1="16" y1="285" x2="98" y2="285" stroke="#1a73e8" stroke-width="2.2" marker-end="url(#ab)"/>
+  <text x="55" y="276" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1a73e8">s_axis</text>
+  <!-- k -> ecdh_top -->
+  <line x1="310" y1="156" x2="378" y2="210" stroke="#c5221f" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="345" y="176" text-anchor="middle" font-size="9" fill="#c5221f">r_k</text>
+  <!-- deser -> top -->
+  <line x1="310" y1="270" x2="378" y2="255" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="344" y="285" text-anchor="middle" font-size="9.5" fill="#5f6368">Qx,Qy, start</text>
+  <line x1="570" y1="248" x2="638" y2="248" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="604" y="239" text-anchor="middle" font-size="9.5" fill="#5f6368">x, y, done</text>
+  <line x1="860" y1="237" x2="942" y2="237" stroke="#1a73e8" stroke-width="2.2" marker-end="url(#ab)"/>
+  <text x="901" y="228" text-anchor="middle" font-size="10.5" font-weight="600" fill="#1a73e8">m_axis</text>
+  <line x1="860" y1="291" x2="942" y2="291" stroke="#188038" stroke-width="2.6" marker-end="url(#ag)"/>
+  <text x="901" y="282" text-anchor="middle" font-size="10.5" font-weight="700" fill="#188038">m_axis_z</text>
+
+  <!-- start uslov -->
+  <text x="205" y="366" text-anchor="middle" font-size="10" fill="#b06000" font-weight="600">start ka jezgru = TLAST paketa  I  r_k_loaded</text>
+
+  <!-- ============ format ulaznog paketa ============ -->
+  <text x="80" y="440" font-size="13" font-weight="700" fill="#202124">Format ulaznog paketa (s_axis) — bez k! primer DW=32, G_M=571: 1+18+18 = 37 reči</text>
+  <g font-size="10.5">
+    <rect x="80"  y="454" width="90"  height="34" rx="4" fill="#fce8e6" stroke="#c5221f"/><text x="125" y="475" text-anchor="middle" fill="#c5221f" font-weight="600">cmd</text>
+    <rect x="170" y="454" width="330" height="34" rx="4" fill="#fff" stroke="#5f6368"/><text x="335" y="475" text-anchor="middle" fill="#202124">Qx  (18 reči, LSB reč prva)</text>
+    <rect x="500" y="454" width="330" height="34" rx="4" fill="#fff" stroke="#5f6368"/><text x="665" y="475" text-anchor="middle" fill="#202124">Qy  (18 reči)</text>
+    <rect x="830" y="454" width="60" height="34" rx="4" fill="#fef7e0" stroke="#f9ab00"/><text x="860" y="475" text-anchor="middle" fill="#b06000" font-weight="600">TLAST</text>
+  </g>
+  <text x="80" y="508" font-size="10" fill="#5f6368">reč 0 = biti DW−1..0 broja, reč 1 = biti 2·DW−1..DW, … · poslednja (delimična) reč dopunjena nulama sa vrha (571 = 17×32 + 27)</text>
+  <text x="80" y="525" font-size="10" fill="#c5221f">k NIJE u paketu — stiže side-band iz RNG (i_k + i_k_valid), tajna nikad ne prolazi kroz softver/PS · KEYGEN: Qx‖Qy = G · SHARED: Qx‖Qy = Q_tuđ</text>
+
+  <!-- format izlaza -->
+  <text x="80" y="562" font-size="13" font-weight="700" fill="#202124">Izlazni paketi</text>
+  <g font-size="10.5">
+    <rect x="80"  y="576" width="150" height="30" rx="4" fill="#e8f0fe" stroke="#1a73e8"/><text x="155" y="595" text-anchor="middle" fill="#174ea6">m_axis: x (18 reči)</text>
+    <rect x="230" y="576" width="150" height="30" rx="4" fill="#e8f0fe" stroke="#1a73e8"/><text x="305" y="595" text-anchor="middle" fill="#174ea6">y (18 reči) +TLAST</text>
+    <rect x="430" y="576" width="200" height="30" rx="4" fill="#e6f4ea" stroke="#188038"/><text x="530" y="595" text-anchor="middle" fill="#137333">m_axis_z: x(S) (18 reči) +TLAST</text>
+  </g>
+  <text x="480" y="652" text-anchor="middle" font-size="9.5" fill="#9aa0a6">ecdh_axis_ip.svg · avgust 2026 · nivo 1: ecdh_sistem.svg · nivo 3: ecdh_top.svg</text>
+</svg>

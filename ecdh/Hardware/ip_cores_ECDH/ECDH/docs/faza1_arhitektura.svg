@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 920" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5f6368"/></marker>
+    <marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a73e8"/></marker>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#188038"/></marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c5221f"/></marker>
+    <marker id="ap" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#8430ce"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1400" height="920" fill="#ffffff"/>
+  <text x="700" y="36" text-anchor="middle" font-size="26" font-weight="700" fill="#202124">ECDH akcelerator — arhitektura IP jezgra ecdh_axis_ip (osnovno jezgro)</text>
+  <text x="700" y="60" text-anchor="middle" font-size="14" fill="#5f6368">GF(2⁵⁷¹), NIST B-571 · AXI-Stream interfejs · privatni k side-band · tajna x(S) nikad ne napušta PL</text>
+
+  <!-- ============ WRAPPER ============ -->
+  <rect x="36" y="84" width="1328" height="700" rx="14" fill="#fbfbfa" stroke="#f9ab00" stroke-width="2.4"/>
+  <text x="56" y="112" font-size="17" font-weight="700" fill="#b06000">ecdh_axis_ip — AXIS omotač</text>
+  <text x="1344" y="112" text-anchor="end" font-size="11" fill="#5f6368">generici: G_M, G_D, G_F, G_B, DATA_WIDTH · FSM: S_IDLE → (S_WAIT_K) → S_CORE → S_SER</text>
+
+  <!-- k latch -->
+  <rect x="60" y="140" width="230" height="70" rx="10" fill="#fce8e6" stroke="#c5221f" stroke-width="1.6"/>
+  <text x="175" y="165" text-anchor="middle" font-size="12.5" font-weight="700" fill="#c5221f">k side-band latch (p_KLATCH)</text>
+  <text x="175" y="184" text-anchor="middle" font-size="10" fill="#202124">r_k ⇐ i_k na strob i_k_valid</text>
+  <text x="175" y="200" text-anchor="middle" font-size="9.5" fill="#5f6368">pamti se do reseta; nikad kroz stream/PS</text>
+  <line x1="175" y1="94" x2="175" y2="138" stroke="#c5221f" stroke-width="2.4" marker-end="url(#ar)"/>
+  <text x="186" y="128" font-size="11" font-weight="700" fill="#c5221f">i_k + i_k_valid (RNG/softver)</text>
+
+  <!-- deserializer -->
+  <rect x="60" y="250" width="230" height="180" rx="10" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="175" y="276" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">ecdh_deserializer</text>
+  <text x="175" y="295" text-anchor="middle" font-size="10" fill="#5f6368">AXIS slave → cmd, Qx, Qy</text>
+  <g font-size="10" fill="#202124">
+    <rect x="80" y="308" width="190" height="26" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="90" y="325">beat 0 → cmd (KEYGEN/SHARED)</text>
+    <rect x="80" y="340" width="190" height="26" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="90" y="357">beat 1..N → Qx</text>
+    <rect x="80" y="372" width="190" height="26" rx="4" fill="#f7f7f5" stroke="#dadce0"/><text x="90" y="389">beat N+1..2N → Qy</text>
+  </g>
+  <text x="175" y="420" text-anchor="middle" font-size="9" fill="#5f6368">tačna dužina → o_valid; kraći/duži → drop</text>
+  <line x1="10" y1="340" x2="58" y2="340" stroke="#1a73e8" stroke-width="2.6" marker-end="url(#ab)"/>
+  <text x="30" y="328" text-anchor="middle" font-size="11" font-weight="700" fill="#1a73e8">s_axis</text>
+
+  <!-- ============ ECDH TOP ============ -->
+  <rect x="340" y="140" width="740" height="600" rx="12" fill="#ffffff" stroke="#34a853" stroke-width="2.2"/>
+  <text x="360" y="168" font-size="15" font-weight="700" fill="#188038">ecdh_top — jezgro: (k, P, b) → afino k·P</text>
+  <text x="1060" y="168" text-anchor="end" font-size="10.5" fill="#5f6368">FSM: S_IDLE → S_LADDER → S_MXY → S_DONE</text>
+
+  <!-- scalar mult -->
+  <rect x="364" y="196" width="400" height="200" rx="10" fill="#fff4e0" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="564" y="222" text-anchor="middle" font-size="13.5" font-weight="700" fill="#b06000">ec_scalar_mult — Montgomery lestvica</text>
+  <text x="564" y="241" text-anchor="middle" font-size="10" fill="#5f6368">ALU-klijent №1 · po bitu: swap → step → reswap · P1=j·P, P2=(j+1)·P</text>
+  <rect x="386" y="256" width="150" height="54" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.3"/>
+  <text x="461" y="279" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b06000">ec_cswap</text>
+  <text x="461" y="296" text-anchor="middle" font-size="9" fill="#5f6368">constant-time zamena</text>
+  <rect x="576" y="256" width="166" height="54" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.3"/>
+  <text x="659" y="279" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b06000">ec_point_step</text>
+  <text x="659" y="296" text-anchor="middle" font-size="9" fill="#5f6368">madd+mdouble, 14 ALU op</text>
+  <text x="564" y="340" text-anchor="middle" font-size="10" fill="#202124">šift-registar k → tekući bit = 1 žica · init trik: 2P bez posebnog hardvera</text>
+  <text x="564" y="360" text-anchor="middle" font-size="10.5" font-weight="600" fill="#b06000">~570 iteracija × (14 op) ≈ 100k taktova @ D=32 (99% vremena)</text>
+
+  <!-- mxy -->
+  <rect x="800" y="196" width="256" height="200" rx="10" fill="#fff4e0" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="928" y="222" text-anchor="middle" font-size="13.5" font-weight="700" fill="#b06000">ec_mxy — y-recovery</text>
+  <text x="928" y="241" text-anchor="middle" font-size="10" fill="#5f6368">ALU-klijent №2 · mikroprogram 14 op</text>
+  <text x="928" y="266" text-anchor="middle" font-size="10.5" fill="#202124">x = X1/Z1 · y po Mxy formuli</text>
+  <text x="928" y="286" text-anchor="middle" font-size="10.5" fill="#202124">3 × INV (jedine u algoritmu)</text>
+  <text x="928" y="340" text-anchor="middle" font-size="10" fill="#202124">uvek se izvršava (konstantan tok)</text>
+  <text x="928" y="360" text-anchor="middle" font-size="10.5" font-weight="600" fill="#b06000">≈ 2,7k taktova @ D=32 (~3%)</text>
+
+  <line x1="764" y1="290" x2="798" y2="290" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="781" y="280" text-anchor="middle" font-size="9" fill="#5f6368">(X1,Z1,</text>
+  <text x="781" y="304" text-anchor="middle" font-size="9" fill="#5f6368">X2,Z2)</text>
+
+  <!-- mux -->
+  <rect x="560" y="440" width="300" height="52" rx="8" fill="#fef7e0" stroke="#f9ab00" stroke-width="1.8"/>
+  <text x="710" y="462" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">2:1 arbitar ALU magistrale</text>
+  <text x="710" y="480" text-anchor="middle" font-size="9.5" fill="#5f6368">mux samo start/op/a/b (po stanju); busy/done/res se granaju na oba</text>
+  <line x1="564" y1="396" x2="640" y2="438" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <line x1="928" y1="396" x2="800" y2="438" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <line x1="710" y1="492" x2="710" y2="524" stroke="#8430ce" stroke-width="2" marker-end="url(#ap)"/>
+
+  <!-- gf_alu -->
+  <rect x="364" y="528" width="692" height="184" rx="10" fill="#f3e8fd" stroke="#8430ce" stroke-width="1.8"/>
+  <text x="710" y="554" text-anchor="middle" font-size="14" font-weight="700" fill="#681da8">gf_alu — JEDAN deljeni GF(2⁵⁷¹) datapath</text>
+  <g font-size="10.5" fill="#202124">
+    <rect x="388" y="572" width="140" height="60" rx="8" fill="#fff" stroke="#8430ce"/>
+    <text x="458" y="596" text-anchor="middle" font-weight="700">gf_add</text>
+    <text x="458" y="614" text-anchor="middle" font-size="9" fill="#5f6368">XOR, 1 nivo, privatan</text>
+    <rect x="548" y="572" width="140" height="60" rx="8" fill="#fff" stroke="#8430ce"/>
+    <text x="618" y="596" text-anchor="middle" font-weight="700">gf_sqr</text>
+    <text x="618" y="614" text-anchor="middle" font-size="9" fill="#5f6368">1 LUT6 nivo, privatan</text>
+    <rect x="708" y="572" width="160" height="60" rx="8" fill="#fff" stroke="#8430ce" stroke-width="1.8"/>
+    <text x="788" y="592" text-anchor="middle" font-weight="700">gf_mul (digit-serial)</text>
+    <text x="788" y="608" text-anchor="middle" font-size="9" fill="#5f6368">⌈m/G_D⌉ taktova — DELI SE</text>
+    <text x="788" y="622" text-anchor="middle" font-size="9" fill="#5f6368">(usko grlo, knoba #1)</text>
+    <rect x="888" y="572" width="148" height="60" rx="8" fill="#fff" stroke="#8430ce"/>
+    <text x="962" y="592" text-anchor="middle" font-weight="700">gf_inv (Itoh–Tsujii)</text>
+    <text x="962" y="608" text-anchor="middle" font-size="9" fill="#5f6368">570 sqr + 13 mul;</text>
+    <text x="962" y="622" text-anchor="middle" font-size="9" fill="#5f6368">mul-klijent + arbitar</text>
+  </g>
+  <text x="710" y="662" text-anchor="middle" font-size="10" fill="#681da8">operacije: ADD/SQR kombinacione · MUL/INV sekvencijalne (start/busy/done) · konstantno vreme · 0 DSP</text>
+  <text x="710" y="682" text-anchor="middle" font-size="9.5" fill="#5f6368">interni arbitar: gf_inv deli JEDAN gf_mul sa direktnim MUL putem — isti obrazac kao 2:1 mux iznad</text>
+
+  <!-- des -> top -->
+  <line x1="290" y1="340" x2="362" y2="300" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="322" y="308" text-anchor="middle" font-size="9.5" fill="#5f6368">Qx, Qy (=xb, yb)</text>
+  <line x1="290" y1="175" x2="362" y2="230" stroke="#c5221f" stroke-width="1.8" marker-end="url(#ar)"/>
+  <text x="330" y="196" text-anchor="middle" font-size="9.5" fill="#c5221f">r_k</text>
+
+  <!-- serializer -->
+  <rect x="1110" y="196" width="230" height="240" rx="10" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="1225" y="222" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">ecdh_serializer</text>
+  <text x="1225" y="241" text-anchor="middle" font-size="10" fill="#5f6368">(x,y) → AXIS, rutiranje po komandi</text>
+  <rect x="1128" y="256" width="194" height="60" rx="8" fill="#e8f0fe" stroke="#1a73e8" stroke-width="1.3"/>
+  <text x="1225" y="280" text-anchor="middle" font-size="11" font-weight="700" fill="#174ea6">KEYGEN → m_axis</text>
+  <text x="1225" y="300" text-anchor="middle" font-size="9.5" fill="#202124">javni ključ x i y (2N reči)</text>
+  <rect x="1128" y="328" width="194" height="60" rx="8" fill="#e6f4ea" stroke="#188038" stroke-width="1.5"/>
+  <text x="1225" y="352" text-anchor="middle" font-size="11" font-weight="700" fill="#137333">SHARED → m_axis_z</text>
+  <text x="1225" y="372" text-anchor="middle" font-size="9.5" fill="#202124">tajna x(S) (N reči = 72 B)</text>
+  <text x="1225" y="414" text-anchor="middle" font-size="9" fill="#5f6368">neaktivni izlaz ćuti (tvalid=0)</text>
+
+  <line x1="1080" y1="300" x2="1108" y2="300" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="1094" y="290" text-anchor="middle" font-size="9" fill="#5f6368">x, y</text>
+  <line x1="1340" y1="286" x2="1392" y2="286" stroke="#1a73e8" stroke-width="2.6" marker-end="url(#ab)"/>
+  <text x="1366" y="274" text-anchor="middle" font-size="11" font-weight="700" fill="#1a73e8">m_axis</text>
+  <text x="1366" y="308" text-anchor="middle" font-size="9" fill="#5f6368">→ PS → mreža</text>
+  <line x1="1340" y1="358" x2="1392" y2="358" stroke="#188038" stroke-width="3" marker-end="url(#ag)"/>
+  <text x="1366" y="346" text-anchor="middle" font-size="11" font-weight="700" fill="#188038">m_axis_z</text>
+  <text x="1366" y="380" text-anchor="middle" font-size="9" fill="#5f6368">→ KMAC (PL)</text>
+
+  <!-- wrapper flow note -->
+  <rect x="1110" y="480" width="230" height="232" rx="10" fill="#fef7e0" stroke="#f9ab00" stroke-width="1.3"/>
+  <text x="1225" y="506" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b06000">Tok jedne operacije</text>
+  <g font-size="9.5" fill="#202124">
+    <text x="1126" y="530">1. strob k (jednom, za obe komande)</text>
+    <text x="1126" y="550">2. paket cmd + Qx + Qy (2N+1 reči)</text>
+    <text x="1126" y="570">3. o_valid → S_CORE (garantovano</text>
+    <text x="1136" y="586">   uhvaćen — paket ulazi samo u IDLE)</text>
+    <text x="1126" y="606">4. jezgro: lestvica → mxy</text>
+    <text x="1126" y="626">5. serializer → m_axis / m_axis_z</text>
+    <text x="1126" y="646">6. tek tada novi paket (backpressure)</text>
+  </g>
+  <text x="1126" y="678" font-size="9" fill="#5f6368">B-571, DW=32: paket = 37 reči;</text>
+  <text x="1126" y="694" font-size="9" fill="#5f6368">k·P ukupno ≈ 103k taktova @ D=32</text>
+
+  <!-- ============ legenda / brojke ============ -->
+  <rect x="36" y="800" width="1328" height="96" rx="12" fill="#f7f7f5" stroke="#9aa0a6" stroke-width="1.2"/>
+  <text x="56" y="826" font-size="12" font-weight="700" fill="#202124">Verifikacija (GHDL, zlatni model ec_ladder.py):</text>
+  <text x="56" y="846" font-size="10.5" fill="#202124">GF(2⁴) iscrpno po sloju (mul 256, cswap 131072, alu 543, step 503…) · end-to-end: ecdh_top ALL 14/20 PASS (GF(2⁴)/B-571) · omotač ALL 168 PASS (6 backpressure parova × DW ∈ {8,16,32,64}) + B-571 ALL 4</text>
+  <text x="56" y="866" font-size="10.5" fill="#202124">Bezbednost: constant-time po bitu (cswap, fiksni mikroprogrami) · k side-band · tajna samo na m_axis_z · curenje bitlen(k) prihvatljivo za ECDH (SPEC)</text>
+  <text x="56" y="886" font-size="10.5" fill="#5f6368">Paralelno jezgro (ista spoljašnjost, nova unutrašnjost lestvice): lokalni ADD/SQR, tri množača u koraku</text>
+</svg>

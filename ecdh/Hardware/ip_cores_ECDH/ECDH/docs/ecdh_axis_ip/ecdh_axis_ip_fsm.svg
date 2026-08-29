@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5f6368"/></marker>
+    <marker id="ao" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#b06000"/></marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#c5221f"/></marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="640" fill="#f7f7f5"/>
+  <text x="480" y="30" text-anchor="middle" font-size="21" font-weight="700" fill="#202124">ecdh_axis_ip — struktura i mašina stanja omotača</text>
+  <text x="480" y="51" text-anchor="middle" font-size="12.5" fill="#5f6368">tanki orkestrator: 3 instance + k latch + cmd latch · jedna operacija u letu · tok podataka: figures/ecdh_axis_ip.svg</text>
+
+  <!-- ============ struktura ============ -->
+  <rect x="48" y="72" width="864" height="230" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="94" font-size="13" font-weight="700" fill="#202124">Struktura (šta modul sadrži)</text>
+
+  <rect x="70" y="108" width="200" height="76" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="170" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">u_des : ecdh_deserializer</text>
+  <text x="170" y="148" text-anchor="middle" font-size="9.5" fill="#5f6368">s_axis → cmd, Qx, Qy + o_valid</text>
+  <text x="170" y="163" text-anchor="middle" font-size="9.5" fill="#5f6368">i_ready = (state = S_IDLE)</text>
+  <text x="170" y="177" text-anchor="middle" font-size="9.5" fill="#5f6368">→ van S_IDLE ne prima paket</text>
+
+  <rect x="380" y="108" width="200" height="76" rx="8" fill="#fff" stroke="#5f6368" stroke-width="1.8"/>
+  <text x="480" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#202124">u_core : ecdh_top</text>
+  <text x="480" y="148" text-anchor="middle" font-size="9.5" fill="#5f6368">k·P → afino (x, y)</text>
+  <text x="480" y="163" text-anchor="middle" font-size="9.5" fill="#5f6368">i_k=r_k · i_xb/yb=Qx/Qy · i_b=c_B</text>
+  <text x="480" y="177" text-anchor="middle" font-size="9.5" fill="#5f6368">start strob: S_CORE ∧ ¬busy</text>
+
+  <rect x="690" y="108" width="200" height="76" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="790" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">u_ser : ecdh_serializer</text>
+  <text x="790" y="148" text-anchor="middle" font-size="9.5" fill="#5f6368">(x,y) → m_axis / m_axis_z</text>
+  <text x="790" y="163" text-anchor="middle" font-size="9.5" fill="#5f6368">i_shared = r_shared</text>
+  <text x="790" y="177" text-anchor="middle" font-size="9.5" fill="#5f6368">start strob: S_SER ∧ ¬busy</text>
+
+  <line x1="270" y1="146" x2="378" y2="146" stroke="#5f6368" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="324" y="138" text-anchor="middle" font-size="9" fill="#5f6368">Qx, Qy</text>
+  <line x1="580" y1="146" x2="688" y2="146" stroke="#5f6368" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="634" y="138" text-anchor="middle" font-size="9" fill="#5f6368">x, y</text>
+
+  <rect x="70" y="210" width="380" height="74" rx="8" fill="#fce8e6" stroke="#c5221f" stroke-width="1.4"/>
+  <text x="260" y="230" text-anchor="middle" font-size="11.5" font-weight="700" fill="#c5221f">p_KLATCH — k side-band latch</text>
+  <text x="260" y="248" text-anchor="middle" font-size="9.5" fill="#202124">i_k_valid=1 → r_k ⇐ i_k, r_k_loaded ⇐ 1</text>
+  <text x="260" y="263" text-anchor="middle" font-size="9.5" fill="#5f6368">pamti se do reseta — isti k služi i KEYGEN i SHARED;</text>
+  <text x="260" y="276" text-anchor="middle" font-size="9.5" fill="#5f6368">k nikad ne prolazi kroz stream/PS (bezbednosna osobina)</text>
+
+  <rect x="490" y="210" width="400" height="74" rx="8" fill="#fef7e0" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="690" y="230" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b06000">p_CMD — snapshot komande</text>
+  <text x="690" y="248" text-anchor="middle" font-size="9.5" fill="#202124">u S_IDLE na des.o_valid: r_shared ⇐ cmd(0)</text>
+  <text x="690" y="263" text-anchor="middle" font-size="9.5" fill="#5f6368">cmd(0)=1 → SHARED (m_axis_z), cmd(0)=0 → KEYGEN (m_axis)</text>
+  <text x="690" y="276" text-anchor="middle" font-size="9.5" fill="#5f6368">des. izlazi su stabilni od o_valid do sledećeg paketa</text>
+
+  <!-- ============ FSM ============ -->
+  <rect x="48" y="324" width="864" height="256" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="346" font-size="13" font-weight="700" fill="#202124">Mašina stanja (p_STATE_REG + p_NEXT_STATE, sinhroni rstn → S_IDLE)</text>
+
+  <!-- states -->
+  <rect x="90" y="400" width="130" height="52" rx="26" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="155" y="431" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_IDLE</text>
+
+  <rect x="300" y="490" width="150" height="52" rx="26" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="375" y="515" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_WAIT_K</text>
+  <text x="375" y="530" text-anchor="middle" font-size="8.5" fill="#5f6368">paket čeka k strob</text>
+
+  <rect x="430" y="400" width="130" height="52" rx="26" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="495" y="425" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_CORE</text>
+  <text x="495" y="441" text-anchor="middle" font-size="8.5" fill="#5f6368">jezgro računa k·P</text>
+
+  <rect x="700" y="400" width="130" height="52" rx="26" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="765" y="425" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_SER</text>
+  <text x="765" y="441" text-anchor="middle" font-size="8.5" fill="#5f6368">slanje rezultata</text>
+
+  <!-- reset arrow -->
+  <line x1="60" y1="426" x2="88" y2="426" stroke="#5f6368" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="73" y="416" text-anchor="middle" font-size="9" fill="#5f6368">reset</text>
+
+  <!-- IDLE -> CORE -->
+  <line x1="220" y1="420" x2="428" y2="420" stroke="#b06000" stroke-width="1.8" marker-end="url(#ao)"/>
+  <text x="324" y="410" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">des.o_valid ∧ r_k_loaded</text>
+
+  <!-- IDLE -> WAIT_K -->
+  <line x1="196" y1="452" x2="304" y2="496" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="216" y="486" font-size="9.5" fill="#b06000">des.o_valid ∧ ¬r_k_loaded</text>
+
+  <!-- WAIT_K -> CORE -->
+  <line x1="452" y1="488" x2="486" y2="454" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="512" y="480" font-size="9.5" fill="#b06000">r_k_loaded</text>
+
+  <!-- CORE -> SER -->
+  <line x1="560" y1="420" x2="698" y2="420" stroke="#b06000" stroke-width="1.8" marker-end="url(#ao)"/>
+  <text x="629" y="410" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">core.o_done</text>
+
+  <!-- SER -> IDLE (long return arc) -->
+  <path d="M 765 398 L 765 372 L 200 372 L 200 398" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="480" y="364" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">ser.o_done  (spreman za novi paket)</text>
+
+  <text x="480" y="566" text-anchor="middle" font-size="9.5" fill="#5f6368">van S_IDLE: s_axis_tready = 0 (nema novog paketa dok traje operacija) · defaulti: next_state ⇐ state_reg</text>
+
+  <text x="480" y="614" text-anchor="middle" font-size="9.5" fill="#9aa0a6">documentation/ecdh_axis_ip_fsm.svg · avgust 2026 · RTL: src/ecdh_axis_ip.vhd</text>
+</svg>

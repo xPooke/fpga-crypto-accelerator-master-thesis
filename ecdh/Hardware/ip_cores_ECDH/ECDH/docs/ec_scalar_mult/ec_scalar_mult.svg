@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 660" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5f6368"/></marker>
+    <marker id="ao" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#b06000"/></marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="660" fill="#f7f7f5"/>
+  <text x="480" y="30" text-anchor="middle" font-size="21" font-weight="700" fill="#202124">ec_scalar_mult — Montgomery lestvica (FSM)</text>
+  <text x="480" y="51" text-anchor="middle" font-size="12.5" fill="#5f6368">invarijanta: P1 = j·P, P2 = (j+1)·P · po bitu: swap → step → reswap · tekući bit = MSB šift-registra r_k</text>
+
+  <!-- ============ FSM flow ============ -->
+  <rect x="48" y="70" width="864" height="420" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="92" font-size="13" font-weight="700" fill="#202124">Mašina stanja (reset → S_IDLE)</text>
+
+  <!-- top row: IDLE -> ALIGN -> INIT_2P -->
+  <rect x="80" y="120" width="150" height="56" rx="28" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="155" y="146" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">S_IDLE</text>
+  <text x="155" y="163" text-anchor="middle" font-size="8.5" fill="#5f6368">snapshot; P1=P2=(xb,1)</text>
+
+  <rect x="330" y="120" width="170" height="56" rx="28" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="415" y="146" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">S_ALIGN</text>
+  <text x="415" y="163" text-anchor="middle" font-size="8.5" fill="#5f6368">HW bin(k)[3:] — šift nula + MSB</text>
+
+  <rect x="620" y="120" width="180" height="56" rx="28" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="710" y="146" text-anchor="middle" font-size="12.5" font-weight="700" fill="#b06000">S_INIT_2P</text>
+  <text x="710" y="163" text-anchor="middle" font-size="8.5" fill="#5f6368">step sa P1=P2 → upiši SAMO 2P</text>
+
+  <line x1="230" y1="148" x2="328" y2="148" stroke="#b06000" stroke-width="1.8" marker-end="url(#ao)"/>
+  <text x="279" y="138" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">i_start</text>
+  <line x1="500" y1="148" x2="618" y2="148" stroke="#b06000" stroke-width="1.8" marker-end="url(#ao)"/>
+  <text x="559" y="138" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">MSB r_k = 1</text>
+  <path d="M 380 118 C 360 84, 450 84, 430 118" fill="none" stroke="#b06000" stroke-width="1.3" marker-end="url(#ao)"/>
+  <text x="405" y="88" text-anchor="middle" font-size="8.5" fill="#b06000">MSB=0: šift (vodeća nula)</text>
+
+  <!-- loop box -->
+  <rect x="80" y="230" width="720" height="180" rx="10" fill="#fff4e0" stroke="#f9ab00" stroke-width="1.4" stroke-dasharray="7 4"/>
+  <text x="96" y="252" font-size="11.5" font-weight="700" fill="#b06000">PETLJA — jednom po bitu skalara (bitlen(k)−1 iteracija)</text>
+
+  <rect x="100" y="270" width="140" height="56" rx="28" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="170" y="296" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">S_SWAP</text>
+  <text x="170" y="312" text-anchor="middle" font-size="8.5" fill="#5f6368">upis cswap izlaza (1 takt)</text>
+
+  <rect x="290" y="270" width="180" height="56" rx="28" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="380" y="296" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">S_POINT_STEP</text>
+  <text x="380" y="312" text-anchor="middle" font-size="8.5" fill="#5f6368">madd+mdouble (14 ALU op)</text>
+
+  <rect x="520" y="270" width="140" height="56" rx="28" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="590" y="296" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">S_RESWAP</text>
+  <text x="590" y="312" text-anchor="middle" font-size="8.5" fill="#5f6368">ista zamena nazad (1 takt)</text>
+
+  <rect x="330" y="346" width="160" height="52" rx="26" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="410" y="370" text-anchor="middle" font-size="12" font-weight="700" fill="#b06000">S_NEXT_BIT</text>
+  <text x="410" y="386" text-anchor="middle" font-size="8.5" fill="#5f6368">šift r_k, r_cnt−1</text>
+
+  <line x1="240" y1="298" x2="288" y2="298" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <line x1="470" y1="298" x2="518" y2="298" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="494" y="288" text-anchor="middle" font-size="8.5" fill="#b06000">step done</text>
+  <path d="M 590 326 L 590 372 L 492 372" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <path d="M 330 372 L 170 372 L 170 328" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="250" y="364" text-anchor="middle" font-size="8.5" fill="#b06000">r_cnt &gt; 1</text>
+
+  <!-- INIT -> SWAP -->
+  <path d="M 710 176 L 710 298 L 662 298" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="716" y="240" font-size="8.5" fill="#b06000">step done ∧ r_cnt&gt;0</text>
+  <path d="M 710 176 L 710 220 L 830 220 L 830 448 L 762 448" fill="none" stroke="#5f6368" stroke-width="1.3" marker-end="url(#a)"/>
+  <text x="836" y="320" font-size="8.5" fill="#5f6368" transform="rotate(90 836 320)">k=1: bez iteracija</text>
+
+  <!-- DONE -->
+  <rect x="620" y="420" width="140" height="56" rx="28" fill="#e6f4ea" stroke="#188038" stroke-width="1.8"/>
+  <text x="690" y="446" text-anchor="middle" font-size="12.5" font-weight="700" fill="#137333">S_DONE</text>
+  <text x="690" y="463" text-anchor="middle" font-size="8.5" fill="#5f6368">o_done; (X1,Z1,X2,Z2) važe</text>
+
+  <path d="M 490 372 L 690 372 L 690 418" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="600" y="364" text-anchor="middle" font-size="8.5" fill="#b06000">r_cnt = 1 (poslednji bit)</text>
+  <path d="M 415 176 L 415 210 L 620 210 L 690 418" fill="none" stroke="#5f6368" stroke-width="0"/>
+  <path d="M 460 176 L 460 200 L 870 200 L 870 448 L 762 448" fill="none" stroke="#5f6368" stroke-width="1.1" stroke-dasharray="4 3"/>
+  <text x="876" y="330" font-size="8" fill="#5f6368" transform="rotate(90 876 330)">defanzivno: k=0 → S_DONE</text>
+
+  <!-- ============ napomene ============ -->
+  <rect x="48" y="504" width="864" height="112" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="526" font-size="12" font-weight="700" fill="#202124">Ključni dizajni</text>
+  <text x="72" y="546" font-size="10" fill="#202124">• r_k = ŠIFT-REGISTAR: tekući bit je uvek ista žica r_k(G_M−1) — bez G_M:1 muxa i prioritetnog kodera (ušteda stotina LUT-ova za ≤G_M taktova ALIGN-a)</text>
+  <text x="72" y="564" font-size="10" fill="#202124">• INIT TRIK: 2P = nP1 izlaz step-a puštenog sa P1=P2=(xb,1); nP2 (đubre) prosto nema write-enable — „odbaciti" u HW znači ne upisati</text>
+  <text x="72" y="582" font-size="10" fill="#202124">• CONSTANT-TIME po bitu: cswap bez grananja, upisi uvek (i za bit=0 iste vrednosti); ukupno vreme otkriva bitlen(k) — OK za ECDH (SPEC beleška)</text>
+  <text x="72" y="600" font-size="10" fill="#202124">• ALU-KLIJENT: gf_alu nije ovde — step-ova magistrala prolazi kroz portove ovog modula do ecdh_top-a</text>
+
+  <text x="480" y="642" text-anchor="middle" font-size="9.5" fill="#9aa0a6">docs/ec_scalar_mult/ec_scalar_mult.svg · avgust 2026 · RTL: src/ec_scalar_mult.vhd</text>
+</svg>

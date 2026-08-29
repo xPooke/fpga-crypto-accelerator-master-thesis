@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#5f6368"/></marker>
+    <marker id="ao" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#b06000"/></marker>
+    <marker id="ab" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#1a73e8"/></marker>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#188038"/></marker>
+  </defs>
+  <rect x="0" y="0" width="960" height="700" fill="#f7f7f5"/>
+  <text x="480" y="30" text-anchor="middle" font-size="21" font-weight="700" fill="#202124">ecdh_serializer — paralelno (x, y) → AXI-Stream master</text>
+  <text x="480" y="51" text-anchor="middle" font-size="12.5" fill="#5f6368">komanda bira izlaz: KEYGEN → m_axis (x‖y, 2N reči) · SHARED → m_axis_z (x, N reči) · neaktivni izlaz ćuti</text>
+
+  <!-- ============ arhitektura ============ -->
+  <rect x="48" y="72" width="864" height="330" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="94" font-size="13" font-weight="700" fill="#202124">Arhitektura (datapath)</text>
+
+  <!-- r_out shift register -->
+  <rect x="80" y="120" width="520" height="90" rx="8" fill="#fef7e0" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="340" y="141" text-anchor="middle" font-size="11.5" font-weight="700" fill="#b06000">r_out — izlazni šift-registar, 2N reči (punjenje na i_start)</text>
+  <g font-size="10">
+    <rect x="100" y="152" width="230" height="30" rx="4" fill="#fff" stroke="#5f6368"/>
+    <text x="215" y="171" text-anchor="middle" fill="#202124">donjih N reči: x (uvek)</text>
+    <rect x="334" y="152" width="230" height="30" rx="4" fill="#fff" stroke="#5f6368" stroke-dasharray="4 3"/>
+    <text x="449" y="171" text-anchor="middle" fill="#202124">gornjih N reči: y (samo KEYGEN)</text>
+  </g>
+  <text x="340" y="200" text-anchor="middle" font-size="9" fill="#5f6368">po prihvaćenoj reči: šift udesno za DW (poslata donja reč ispada, nula ulazi sa vrha)</text>
+
+  <!-- word tap -->
+  <line x1="100" y1="210" x2="100 " y2="240" stroke="#5f6368" stroke-width="0"/>
+  <line x1="150" y1="212" x2="150" y2="248" stroke="#5f6368" stroke-width="1.8" marker-end="url(#a)"/>
+  <text x="160" y="234" font-size="9.5" fill="#5f6368">tekuća reč = r_out(DW−1..0) → tdata OBA izlaza (grana se)</text>
+
+  <!-- routing -->
+  <rect x="80" y="252" width="520" height="76" rx="8" fill="#fff" stroke="#f9ab00" stroke-width="1.4"/>
+  <text x="340" y="272" text-anchor="middle" font-size="11" font-weight="700" fill="#b06000">p_COMB_MASTER — rutiranje po r_shared (latch komande na i_start)</text>
+  <text x="340" y="291" text-anchor="middle" font-size="9.5" fill="#174ea6">r_shared=0: m_axis_tvalid=1, m_axis_tlast=w_last; m_axis_z ćuti (tvalid=0)</text>
+  <text x="340" y="307" text-anchor="middle" font-size="9.5" fill="#137333">r_shared=1: m_axis_z_tvalid=1, m_axis_z_tlast=w_last; m_axis ćuti — tajna nevidljiva javnom putu</text>
+  <text x="340" y="322" text-anchor="middle" font-size="9" fill="#5f6368">TKEEP = sve jedinice na oba (rezultat je uvek ceo broj reči)</text>
+
+  <!-- outputs -->
+  <line x1="600" y1="278" x2="700" y2="248" stroke="#1a73e8" stroke-width="2" marker-end="url(#ab)"/>
+  <text x="770" y="242" font-size="10.5" font-weight="600" fill="#1a73e8">m_axis (javno, KEYGEN)</text>
+  <line x1="600" y1="306" x2="700" y2="330" stroke="#188038" stroke-width="2.4" marker-end="url(#ag)"/>
+  <text x="770" y="338" font-size="10.5" font-weight="700" fill="#188038">m_axis_z (tajna → SHA3)</text>
+
+  <!-- helpers -->
+  <rect x="640" y="120" width="250" height="96" rx="8" fill="#f7f7f5" stroke="#dadce0" stroke-width="1.2"/>
+  <text x="765" y="140" text-anchor="middle" font-size="10.5" font-weight="700" fill="#202124">pomoćni kombinacioni signali</text>
+  <g font-family="Consolas, monospace" font-size="9.5" fill="#202124">
+    <text x="652" y="158">w_nwords = N (SHARED) / 2N (KEYGEN)</text>
+    <text x="652" y="174">w_tready = tready AKTIVNOG izlaza</text>
+    <text x="652" y="190">w_last   = (r_cnt = w_nwords-1)</text>
+    <text x="652" y="206">o_done   = SEND ∧ w_tready ∧ w_last</text>
+  </g>
+
+  <text x="64" y="356" font-size="10" fill="#5f6368">Backpressure: reč stoji stabilna na tdata dok aktivni tready ne dođe (šift se dešava SAMO na w_tready=1).</text>
+  <text x="64" y="374" font-size="10" fill="#5f6368">r_cnt broji poslate reči (0..2N); na poslednjoj reči se ne inkrementira — w_last ostaje 1 do prihvatanja.</text>
+
+  <!-- ============ FSM ============ -->
+  <rect x="48" y="424" width="864" height="220" rx="10" fill="#ffffff" stroke="#9aa0a6" stroke-width="1.4"/>
+  <text x="64" y="446" font-size="13" font-weight="700" fill="#202124">Mašina stanja (reset → S_IDLE)</text>
+
+  <rect x="180" y="500" width="160" height="60" rx="30" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="260" y="528" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_IDLE</text>
+  <text x="260" y="546" text-anchor="middle" font-size="8.5" fill="#5f6368">čeka i_start od omotača</text>
+
+  <rect x="600" y="500" width="160" height="60" rx="30" fill="#fff" stroke="#f9ab00" stroke-width="1.6"/>
+  <text x="680" y="528" text-anchor="middle" font-size="13" font-weight="700" fill="#b06000">S_SEND</text>
+  <text x="680" y="546" text-anchor="middle" font-size="8.5" fill="#5f6368">reč po reč, uz backpressure</text>
+
+  <!-- reset -->
+  <line x1="130" y1="530" x2="178" y2="530" stroke="#5f6368" stroke-width="1.6" marker-end="url(#a)"/>
+  <text x="152" y="520" text-anchor="middle" font-size="9" fill="#5f6368">reset</text>
+
+  <!-- IDLE -> SEND -->
+  <line x1="340" y1="515" x2="598" y2="515" stroke="#b06000" stroke-width="1.8" marker-end="url(#ao)"/>
+  <text x="469" y="505" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">i_start: r_out ⇐ x (‖ y ako KEYGEN), r_shared ⇐ i_shared, r_cnt ⇐ 0</text>
+
+  <!-- SEND self loop -->
+  <path d="M 655 498 C 635 458, 725 458, 705 498" fill="none" stroke="#b06000" stroke-width="1.4" marker-end="url(#ao)"/>
+  <text x="680" y="470" text-anchor="middle" font-size="9" fill="#b06000">w_tready ∧ ¬w_last: šift, r_cnt+1</text>
+
+  <!-- SEND -> IDLE -->
+  <path d="M 680 560 L 680 600 L 260 600 L 260 562" fill="none" stroke="#b06000" stroke-width="1.6" marker-end="url(#ao)"/>
+  <text x="470" y="592" text-anchor="middle" font-size="9.5" fill="#b06000" font-weight="600">w_tready ∧ w_last  (o_done puls — paket poslat)</text>
+
+  <text x="480" y="676" text-anchor="middle" font-size="9.5" fill="#9aa0a6">documentation/ecdh_serializer.svg · avgust 2026 · RTL: src/ecdh_serializer.vhd</text>
+</svg>
