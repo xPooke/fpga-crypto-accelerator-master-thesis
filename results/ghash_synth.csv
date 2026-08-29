@@ -1,0 +1,5 @@
+config,top,mult_cycles,start_MHz,period_ns,WNS_ns,Fmax_MHz,LUT,LUTRAM,FF,BRAM,DSP,power_W,bits_per_clk,ghash_ceiling_Gbps,passes
+ghash_c1,GHASH_wrapper,1,300.0,3.823,0.019,262.86,4707,0,390,0,0,0.710,128.0,33.65,2
+ghash_c2,GHASH_wrapper,2,300.0,2.960,0.091,348.51,4382,0,960,0,0,0.656,64.0,22.30,4
+glue_c1,gcm_enc_glue,1,300.0,4.497,0.101,227.46,5197,0,1023,0,0,0.622,128.0,29.12,4
+glue_c2,gcm_enc_glue,2,300.0,3.333,0.024,302.18,5114,0,1593,0,0,0.609,64.0,19.34,1

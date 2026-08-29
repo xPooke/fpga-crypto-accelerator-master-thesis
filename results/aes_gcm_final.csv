@@ -1,0 +1,13 @@
+# Cevovodni AES kroz ceo AES-GCM put podataka, GHASH u jednom taktu.
+# Vivado 2025.1, xck26-sfvc784-2LV-c, post-implementaciono, out-of-context.
+# Skripta: AES_GCM/Scripts/synth_gcm_final.tcl. Mereno 2026-08-20.
+# Radna tacka: MULT_CYCLES=1, ROUND_STYLE=LUT, AES-256, IPsec ESP tunel
+#   (bypass 34 B, AAD 16 B). RTL posle reverta registra na duzinama (6c7e663).
+# Visejezgarni parnjaci istih redova su u aes_gcm_ipsec.csv kao kripto_enc,
+#   kripto_dec, ipsec_enc, ipsec_dec i nisu ponavljani.
+# NUM_CORES=15 je upisan radi uporedivosti reda, cevovodni omotac ga ne koristi.
+config,top,nivo,smer,wrapper_kind,num_cores,mult_cycles,aes_bits,round_style,bypass_B,aad_B,start_MHz,period_ns,WNS_ns,Fmax_MHz,LUT,LUTRAM,FF,BRAM,DSP,power_W,throughput_Gbps,passes
+unr_kripto_enc,gcm_enc,kripto,enc,UNROLLED,15,1,256,LUT,34,16,230.0,4.473,0.014,224.27,15510,2,6287,0,0,0.756,28.71,3
+unr_kripto_dec,gcm_dec,kripto,dec,UNROLLED,15,1,256,LUT,34,16,230.0,4.462,0.084,228.42,15613,2,6837,0,0,0.729,29.24,3
+unr_ipsec_enc,ipsec_gcm_enc_top,ipsec,enc,UNROLLED,15,1,256,LUT,34,16,230.0,4.348,0.178,239.82,16765,2,7444,0,0,1.035,30.70,2
+unr_ipsec_dec,ipsec_gcm_dec_top,ipsec,dec,UNROLLED,15,1,256,LUT,34,16,230.0,4.348,0.012,230.64,18729,2,8540,0,0,0.815,29.52,1

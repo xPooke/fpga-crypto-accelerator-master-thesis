@@ -1,0 +1,27 @@
+# AES jezgro, 18 konfiguracija. Vivado 2025.1, xck26-sfvc784-2LV-c,
+# post-implementaciono, out-of-context. Mereno 2026-08-21 na RTL-u posle
+# revizije omotaca (a3f335b: kljucevi u distribuiranoj memoriji po jezgru,
+# one-hot dozvole, ispravka S_IDLE trke) i izvoza SubBytes cvora (7eeb043).
+# Zatecena merenja su u aes_synth_stari_omotac.csv i NISU prepisana.
+# Cetiri unrolled reda su prenesena iz stare serije nepromenjena - njihov RTL
+#   nije menjan, pa se ne mere ponovo.
+# c5 i c8 su eksperimentalne tacke; u tabelu rada ne ulaze bez odluke autora.
+config,wrapper_kind,round_style,flow_style,num_cores,aes_bits,start_MHz,period_ns,WNS_ns,Fmax_MHz,LUT,LUTRAM,FF,BRAM,DSP,power_W,blocks_per_clk,throughput_Gbps,passes
+multicore_lut_c8,MULTICORE,LUT,GLOBAL,8,256,400.0,3.271,0.015,307.13,11560,592,4598,0,0,0.838,0.5333,20.97,2
+multicore_lut_c15,MULTICORE,LUT,GLOBAL,15,256,400.0,3.370,0.058,301.93,16960,1110,7356,0,0,1.122,1.0000,38.65,3
+multicore_bram_c7,MULTICORE,BRAM,GLOBAL,7,256,400.0,3.576,0.042,282.97,8077,518,4204,28,0,0.975,0.4667,16.90,2
+multicore_bram_c15,MULTICORE,BRAM,GLOBAL,15,256,400.0,3.835,0.046,263.92,16365,1110,7355,60,0,1.803,1.0000,33.78,3
+unrolled_bram_global,UNROLLED,BRAM,GLOBAL,0,256,400.0,3.384,0.028,297.97,3339,2,5321,52,0,0.786,1.0000,38.14,2
+unrolled_bram_perstage,UNROLLED,BRAM,PER_STAGE,0,256,400.0,3.440,0.096,299.04,3457,0,5414,52,0,0.830,1.0000,38.28,5
+unrolled_lut_global,UNROLLED,LUT,GLOBAL,0,256,400.0,2.500,0.007,401.12,10491,2,5320,0,0,0.996,1.0000,51.34,1
+unrolled_lut_perstage,UNROLLED,LUT,PER_STAGE,0,256,400.0,2.500,0.040,406.50,10579,0,5413,0,0,1.107,1.0000,52.03,1
+multicore_bram_c1,MULTICORE,BRAM,GLOBAL,1,256,400.0,3.382,0.125,307.03,1925,74,1843,4,0,0.418,0.0667,2.62,4
+multicore_bram_c2,MULTICORE,BRAM,GLOBAL,2,256,400.0,3.207,0.028,314.56,2955,148,2239,8,0,0.533,0.1333,5.37,2
+multicore_bram_c4,MULTICORE,BRAM,GLOBAL,4,256,400.0,3.487,0.025,288.85,4994,296,3024,16,0,0.674,0.2667,9.86,2
+multicore_bram_c14,MULTICORE,BRAM,GLOBAL,14,256,400.0,3.594,0.003,278.47,15358,1036,6960,56,0,1.650,0.9333,33.27,2
+multicore_lut_c1,MULTICORE,LUT,GLOBAL,1,256,400.0,2.661,0.089,388.80,2274,74,1843,0,0,0.398,0.0667,3.32,3
+multicore_lut_c4,MULTICORE,LUT,GLOBAL,4,256,400.0,2.783,0.044,365.10,5216,296,3024,0,0,0.564,0.2667,12.46,4
+multicore_lut_c7,MULTICORE,LUT,GLOBAL,7,256,400.0,2.983,0.037,339.44,8345,518,4205,0,0,0.727,0.4667,20.28,3
+multicore_lut_c14,MULTICORE,LUT,GLOBAL,14,256,400.0,3.384,0.007,296.12,15899,1036,6960,0,0,1.093,0.9333,35.38,3
+multicore_lut_c2,MULTICORE,LUT,GLOBAL,2,256,361.0,2.770,0.090,373.12,3618,148,2239,0,0,0.484,0.1333,6.37,2
+multicore_lut_c5,MULTICORE,LUT,GLOBAL,5,256,355.0,2.817,0.007,355.88,6268,370,3419,0,0,0.624,0.3333,15.18,1

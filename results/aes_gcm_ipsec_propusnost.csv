@@ -1,0 +1,26 @@
+# Propusnost punog IPsec IP-a nad nizom paketa realne velicine, takt-tacno u
+# simulaciji (Vivado Simulator 2025.1, xsim), 2026-08-19.
+# TB: AES_GCM/Hardware/tests/ipsec_chain/tb/tb_ipsec_throughput.vhd
+# Pokretanje: AES_GCM/Hardware/tests/ipsec_chain/run_throughput.sh
+# Geometrija: bypass 34 B + AAD 16 B + teret 1504 B (94 reci od 128 b) + ICV 16 B
+#   = ulaz 98 reci, izlaz 99 reci (1570 B) po paketu. Jedan kljuc (jedan SA) za
+#   ceo niz, IV po paketu (i_nonce_valid usred prethodnog paketa, senka-registar
+#   ga primenjuje na granici). Ulaz uvek nudi rec, izlaz uvek prima.
+# Prozor: od prve prihvacene ulazne reci do TLAST poslednjeg paketa na izlazu.
+# chain=0: samo enc top; chain=1: lanac enc->dec (cycles = do kraja dec izlaza,
+#   enc_cycles = enc top zatvoren; auth_ok = broj potvrdjenih oznaka).
+# Ustaljeni ritam: (7110-894)/56 = 111,00 taktova po paketu (MULTICORE),
+#   (7109-893)/56 = 111,00 (UNROLLED); 99 reci na zici + 12 praznih taktova
+#   (izmereno trasiranjem 2026-08-29: 8 taktova punjenje jezgra novim
+#   brojackim nizom, delom sakriveno ispod oznake i bypass/AAD segmenata,
+#   + 3 takta rep oznake + 1 takt preklop segmenata u MERGE). Teret
+#   1504*8/111 = 108,40 b/takt asimptotski, zica 1570*8/111 = 113,15 b/takt.
+# H se NE preracunava po paketu (samo na upis kljuca) - potvrdjeno u RTL-u oba
+#   omotaca i racunski (111 = 99 + 12 ne ostavlja ~15 taktova za H).
+kind,cores,mult,round,chain,npkts,pt_B,in_beats,cycles,out_beats,out_bytes,enc_cycles,enc_beats,enc_bytes,auth_ok,errors
+MULTICORE,15,1,LUT,0,8,1504,784,894,792,12560,894,792,12560,0,0
+MULTICORE,15,1,LUT,0,64,1504,6272,7110,6336,100480,7110,6336,100480,0,0
+MULTICORE,15,1,LUT,1,8,1504,784,932,784,12432,922,792,12560,8,0
+UNROLLED,15,1,LUT,0,8,1504,784,893,792,12560,893,792,12560,0,0
+UNROLLED,15,1,LUT,0,64,1504,6272,7109,6336,100480,7109,6336,100480,0,0
+UNROLLED,15,1,LUT,1,8,1504,784,931,784,12432,921,792,12560,8,0

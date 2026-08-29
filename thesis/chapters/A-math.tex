@@ -1,0 +1,49 @@
+\chapter{Matematičke osnove}
+\label{app:math}
+
+U ovom dodatku sistematizovane su matematičke osnove na koje se oslanjaju sva tri algoritma iz rada, teorija konačnih polja. Cilj dodatka nije ponavljanje kompletnih izvođenja, jer je detaljna razrada, sa dokazima da navedene strukture zaista jesu grupe, prsteni i polja, data u dodatku rada \cite{gavrilovic_diplomski}. Ovde je dat pregled definicija i svojstava koja se u glavnom tekstu koriste, sa naglaskom na tri konkretna polja: $\mathrm{GF}(2^8)$ kod AES-a, $\mathrm{GF}(2^{571})$ kod eliptičke krive B-571 i $\mathrm{GF}(2^{128})$ kod GHASH funkcije.
+
+\section{Grupa, prsten i polje}
+\label{app:strukture}
+
+\textit{Abelova grupa} $(G, +)$ je skup $G$ sa binarnom operacijom $+$ koja zadovoljava: zatvorenost, asocijativnost, postojanje neutralnog elementa, postojanje inverznog elementa za svaki element skupa i komutativnost.
+\smallbreak
+\textit{Prsten} $(R, +, \cdot)$ je skup sa dve operacije, takav da je $(R, +)$ Abelova grupa, operacija $\cdot$ asocijativna i distributivna prema $+$. Ako je i $\cdot$ komutativna, prsten je komutativan.
+\smallbreak
+\textit{Polje} $(F, +, \cdot)$ je komutativan prsten sa jedinicom u kome svaki element različit od nule ima multiplikativni inverz. U polju su, dakle, definisane sve četiri osnovne računske operacije, pri čemu deljenje predstavlja množenje inverzom.
+
+\section{Konačna (Galoisova) polja}
+\label{app:konacna_polja}
+
+Konačno ili Galoisovo polje je polje sa konačnim brojem elemenata. Osnovna teorema teorije konačnih polja kaže da polje sa $q$ elemenata postoji ako i samo ako je $q = p^n$ stepen prostog broja $p$, i da je tada jedinstveno do na izomorfizam, a označava se sa $\mathrm{GF}(p^n)$. Broj $p$ naziva se karakteristika polja.
+\smallbreak
+Za $n=1$ polje $\mathrm{GF}(p)$ čine ostaci pri deljenju sa $p$, sa sabiranjem i množenjem po modulu $p$. Za $n > 1$ elementi polja $\mathrm{GF}(p^n)$ predstavljaju se kao polinomi stepena manjeg od $n$ sa koeficijentima iz $\mathrm{GF}(p)$, što je takozvana polinomijalna baza. Sabiranje je sabiranje koeficijenata u $\mathrm{GF}(p)$, a množenje je množenje polinoma po modulu izabranog nesvodljivog polinoma $f(x)$ stepena $n$. Nesvodljivost polinoma $f$ garantuje da svaki element različit od nule ima inverz.
+\smallbreak
+U kriptografskom hardveru posebno mesto imaju polja karakteristike 2, binarna polja $\mathrm{GF}(2^n)$: element polja je binarna reč od $n$ bitova, sabiranje je bitska XOR operacija bez prenosa, a množenje se gradi od AND i XOR mreža. Sva tri polja korišćena u ovom radu su binarna.
+
+\section{Polje \texorpdfstring{$\mathrm{GF}(2^8)$}{GF(2\^{}8)} u AES-u}
+\label{app:gf256}
+
+AES bajtove tumači kao elemente polja $\mathrm{GF}(2^8)$ sa nesvodljivim polinomom
+\begin{equation}
+    m(x) = x^8 + x^4 + x^3 + x + 1 \;=\; \{11B\}.
+\end{equation}
+Bajt $b_7 b_6 \ldots b_0$ predstavlja polinom $b_7 x^7 + \cdots + b_1 x + b_0$. Osnovna operacija množenja sa $x$, odnosno sa $\{02\}$, je pomeranje ulevo praćeno, ako je najstariji bit bio jedinica, redukcijom XOR-om sa $\{1B\}$. Opšte množenje se dobija razlaganjem množioca na stepene $x$ (primer je dat u glavnom tekstu, u odeljku o MixColumns transformaciji). Multiplikativni inverz, potreban za S-boks, može se izračunati proširenim Euklidovim algoritmom ili, po Fermaovoj maloj teoremi, kao $b^{-1} = b^{254}$. Kompletna tabela S-boksa data je u dodatku \ref{app:aes_tabele}.
+
+\section{Polje \texorpdfstring{$\mathrm{GF}(2^{571})$}{GF(2\^{}571)} kod eliptičke krive B-571}
+\label{app:gf571}
+
+Aritmetika tačaka krive B-571 svodi se na operacije u polju $\mathrm{GF}(2^{571})$ sa redukcionim pentanomom
+\begin{equation}
+    f(x) = x^{571} + x^{10} + x^5 + x^2 + 1.
+\end{equation}
+Pentanom je izabran standardom tako da redukcija bude plitka mreža XOR kola. Stepeni viška ($x^{571}$ i viši) zamenjuju se sa svega četiri niža stepena. Kvadriranje je u binarnom polju linearna operacija, jer se kvadriranjem polinoma koeficijenti samo razmaknu na parne pozicije ($x^i \mapsto x^{2i}$), pa se kvadriranje sa redukcijom realizuje kao čisto kombinaciona mreža, za razliku od opšteg množenja koje je dominantna operacija po ceni. Inverzija se izvodi Fermaovim pristupom (lanac kvadriranja i množenja, npr. Itoh--Tsujii metodom) ili proširenim Euklidovim algoritmom, i tipično se svodi na jednu jedinu inverziju na kraju skalarnog množenja. Kompletni parametri krive dati su u dodatku \ref{app:b571}.
+
+\section{Polje \texorpdfstring{$\mathrm{GF}(2^{128})$}{GF(2\^{}128)} u GHASH funkciji}
+\label{app:gf128}
+
+GHASH funkcija GCM režima računa u polju $\mathrm{GF}(2^{128})$ sa redukcionim polinomom
+\begin{equation}
+    f(x) = x^{128} + x^7 + x^2 + x + 1.
+\end{equation}
+Specifičnost standarda \cite{sp80038d} je konvencija o redosledu bitova. Krajnji levi bit 128-bitnog bloka je koeficijent uz $x^0$, a krajnji desni uz $x^{127}$, obrnuto od prirodnog binarnog zapisa. Na matematička svojstva polja to nema uticaja, ali hardverski množač mora biti projektovan (ili mu ulazi ogledalski preuređeni) u skladu sa konvencijom. Množenje u ovako velikom polju se u praksi ne realizuje direktno, nego Karatsubinom dekompozicijom. Postupak je opisan u odeljku \ref{subsubsec:gf128_mnozenje}, a izabrana dubina rekurzije i njena cena u odeljku \ref{subsec:hw_ghash}.

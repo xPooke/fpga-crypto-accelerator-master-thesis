@@ -1,0 +1,26 @@
+# AES-GCM na dva nivoa u IPsec ESP geometriji, 20 konfiguracija.
+# Vivado 2025.1, xck26-sfvc784-2LV-c, post-implementaciono, out-of-context.
+# Osam redova sa petnaest jezgara ponovo je izmereno 2026-08-21 na RTL-u posle
+#   revizije omotaca; dvanaest jednojezgarnih redova je zateceno i nepromenjeno.
+# Zatecena merenja su u aes_gcm_ipsec_stari_omotac.csv i NISU prepisana.
+config,top,nivo,smer,num_cores,mult_cycles,aes_bits,round_style,bypass_B,aad_B,start_MHz,period_ns,WNS_ns,Fmax_MHz,LUT,LUTRAM,FF,BRAM,DSP,power_W,throughput_Gbps,passes
+kripto_enc_c1,gcm_enc,kripto,enc,1,1,256,LUT,34,16,220.0,4.545,0.046,222.25,8540,0,4603,0,0,0.479,1.90,1
+kripto_dec_c1,gcm_dec,kripto,dec,1,1,256,LUT,34,16,220.0,4.441,0.095,230.07,8505,0,5153,0,0,0.494,1.96,4
+ipsec_enc_c1,ipsec_gcm_enc_top,ipsec,enc,1,1,256,LUT,34,16,220.0,4.337,0.161,239.44,9647,0,5760,0,0,0.502,2.04,5
+ipsec_dec_c1,ipsec_gcm_dec_top,ipsec,dec,1,1,256,LUT,34,16,220.0,4.786,0.038,210.59,11361,0,6850,0,0,0.501,1.80,4
+kripto_enc_c1_m2,gcm_enc,kripto,enc,1,2,256,LUT,34,16,220.0,3.372,0.145,309.84,8294,0,5173,0,0,0.550,2.64,5
+kripto_dec_c1_m2,gcm_dec,kripto,dec,1,2,256,LUT,34,16,220.0,3.513,0.219,303.54,8421,0,5723,0,0,0.542,2.59,5
+ipsec_enc_c1_m2,ipsec_gcm_enc_top,ipsec,enc,1,2,256,LUT,34,16,220.0,3.631,0.148,287.07,9341,0,6330,0,0,0.670,2.45,5
+ipsec_dec_c1_m2,ipsec_gcm_dec_top,ipsec,dec,1,2,256,LUT,34,16,220.0,4.147,0.219,254.55,11049,0,7422,0,0,0.532,2.17,5
+kripto_enc_c1_reg,gcm_enc,kripto,enc,1,1,256,LUT,34,16,220.0,4.422,0.110,231.89,8519,0,4666,0,0,0.486,1.98,4
+kripto_dec_c1_reg,gcm_dec,kripto,dec,1,1,256,LUT,34,16,220.0,4.085,0.026,246.34,8772,0,5216,0,0,0.514,2.10,4
+ipsec_enc_c1_reg,ipsec_gcm_enc_top,ipsec,enc,1,1,256,LUT,34,16,220.0,4.545,0.049,222.40,9665,0,5823,0,0,0.511,1.90,1
+ipsec_dec_c1_reg,ipsec_gcm_dec_top,ipsec,dec,1,1,256,LUT,34,16,220.0,4.326,0.172,240.71,11412,0,6913,0,0,0.673,2.05,4
+kripto_enc,gcm_enc,kripto,enc,15,1,256,LUT,34,16,220.0,4.517,0.036,223.14,21908,1110,8319,0,0,1.195,28.56,2
+kripto_dec,gcm_dec,kripto,dec,15,1,256,LUT,34,16,220.0,4.545,0.021,221.02,22210,1110,8868,0,0,1.076,28.29,1
+ipsec_enc,ipsec_gcm_enc_top,ipsec,enc,15,1,256,LUT,34,16,220.0,4.396,0.023,228.65,23518,1110,9475,0,0,1.219,29.27,2
+ipsec_dec,ipsec_gcm_dec_top,ipsec,dec,15,1,256,LUT,34,16,220.0,4.604,0.021,218.18,25015,1110,10564,0,0,1.210,27.93,2
+ipsec_dec_m2,ipsec_gcm_dec_top,ipsec,dec,15,2,256,LUT,34,16,220.0,4.486,0.022,223.99,24823,1110,11134,0,0,1.141,14.34,2
+kripto_enc_m2,gcm_enc,kripto,enc,15,2,256,LUT,34,16,264.0,3.788,0.031,266.18,21675,1110,8889,0,0,1.320,17.04,1
+kripto_dec_m2,gcm_dec,kripto,dec,15,2,256,LUT,34,16,262.0,3.817,0.049,265.41,21995,1110,9438,0,0,1.211,16.99,1
+ipsec_enc_m2,ipsec_gcm_enc_top,ipsec,enc,15,2,256,LUT,34,16,245.0,3.894,0.029,258.76,23264,1110,10045,0,0,1.040,16.56,4

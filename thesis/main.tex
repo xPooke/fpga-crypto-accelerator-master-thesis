@@ -1,0 +1,203 @@
+\documentclass[a4paper,12pt]{report}
+
+% Language setting
+\usepackage[utf8]{inputenc}
+% T1 podrazumevano (latinica), T2A za cirilicni naslov.
+% Ako cirilicna podrska nije instalirana (paket texlive-lang-cyrillic),
+% naslov privremeno pada na latinicu da bi se rad ipak kompajlirao.
+\IfFileExists{t2aenc.def}{%
+  \usepackage[T2A,T1]{fontenc}%
+  \newcommand{\naslovcir}{{\fontencoding{T2A}\selectfont Криптографски акцелератор на FPGA платформи заснован на ECDH, SHA-3 и AES-GCM алгоритмима}}%
+}{%
+  \usepackage[T1]{fontenc}%
+  \newcommand{\naslovcir}{Kriptografski akcelerator na FPGA platformi zasnovan na ECDH, SHA-3 i AES-GCM algoritmima}%
+}
+\usepackage[serbian]{babel}
+% babel-serbian pravi znak " aktivnim (precica za prelom i navodnike). U radu se "
+% koristi doslovno, npr. u \texttt{"KMAC"}, pa se precica iskljucuje.
+% \AtBeginDocument je nuzan: babel precice ponovo ukljucuje pri izboru jezika.
+\AtBeginDocument{\shorthandoff{"}}
+
+% Set page size and margins
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{3}
+
+% Useful packages
+\usepackage{amsmath}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\adj}{adj}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{matrix, positioning, automata, arrows, calc, patterns, fit, shapes.geometric}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\usepackage{float}
+\usepackage{listings}
+\PassOptionsToPackage{table}{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.16}
+\usepackage{mathtools}
+\usepackage{enumerate}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{placeins}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{makecell}
+\usepackage{arydshln} % Za napredne linije i kontrolu debljine
+\usepackage{textcomp}
+\usepackage{bm}
+\usepackage{etoolbox} % velicina tabela, kontrola
+\usepackage{booktabs} % kontrola debljina linija u tabelama
+
+\usepackage{amsthm}
+% Definisanje okruzenja 'example'
+\newtheorem{example}{Primer}[chapter]
+
+\newcolumntype{B}{>{\bfseries}l} % auto bold
+\newcommand{\rsz}[3][1cm]{%resize za tabele
+  \makebox[#1][c]{\resizebox{#2\width}{!}{#3}}%
+}
+
+\setlength{\arrayrulewidth}{0.5mm} % Adjust table line thickness
+\setlength{\tabcolsep}{15pt} % Adjust column separation
+\renewcommand{\arraystretch}{2} % Adjust row height
+
+% Kvadratne celije za seme matrica (stanje Keccak-a, matrica stanja AES-a).
+% Sirina celije = 1cm (\rsz) + 2*tabcolsep, visina = arraystretch * baselineskip(\Large);
+% vrednosti 10pt i 2.35 izjednacavaju to dvoje, pa celije ispadaju kvadratne.
+\newcommand{\kvsetup}{\Large\setlength{\tabcolsep}{10pt}\renewcommand{\arraystretch}{2.35}}
+\newcommand{\kv}[1]{\rsz{1.4}{#1}}
+
+% Prelom reci koristi srpske uzorke (hyph-sr-latn), iz paketa texlive-lang-cyrillic;
+% TeX Live srpski svrstava medju cirilicne jezike bez obzira na pismo. Rucna lista
+% izuzetaka koja je ranije stajala ovde vise nije potrebna.
+%
+% Nazivi (Slika, Tabela, Poglavlje...) se prepisuju posle \begin{document}, jer bi
+% ih babel inace postavio na svoje.
+
+\sloppy
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+% Imenovani TikZ stilovi za seme (boje konzistentne kroz ceo rad, kao u diplomskom):
+% blokdata = podaci (zeleno), blokkripto = kriptografska operacija (zuto),
+% blokrezultat = izlaz/kriptogram (ljubicasto), blokghash = autentifikacija (cijan)
+\tikzstyle{blokdata} = [rectangle, rounded corners, minimum width=2.2cm, minimum height=0.9cm, text centered, draw=black, fill=green!30]
+\tikzstyle{blokkripto} = [rectangle, rounded corners, minimum width=2.2cm, minimum height=0.9cm, text centered, draw=black, fill=yellow!30]
+\tikzstyle{blokrezultat} = [rectangle, rounded corners, minimum width=2.2cm, minimum height=0.9cm, text centered, draw=black, fill=purple!30]
+\tikzstyle{blokghash} = [rectangle, rounded corners, minimum width=2.2cm, minimum height=0.9cm, text centered, draw=black, fill=cyan!30]
+\tikzstyle{strelica} = [thick,->,>=stealth]
+% Stil za masine stanja: sivi krugovi i sive strelice, crni natpisi
+\tikzstyle{fsm} = [->, >=stealth, auto,
+    every state/.style={circle, draw=black!55, line width=1.1pt, fill=gray!12, minimum size=1.9cm, font=\small\ttfamily},
+    every edge/.style={draw=black!55, line width=1.1pt, ->, >=stealth},
+    every initial by arrow/.style={draw=black!55, line width=1.1pt, ->, >=stealth},
+    initial text={\itshape reset}]
+
+\title{\Huge\vspace{10mm}{\bf{\naslovcir}}}
+\author{\textsl{\vspace{10mm}Marko Gavrilović}}
+\date{\vspace{120mm}2026.}
+
+\begin{document}
+
+\renewcommand*\contentsname{Sadržaj}
+\renewcommand{\figurename}{Slika}
+\renewcommand{\lstlistingname}{Tekst}
+\renewcommand{\tablename}{Tabela}
+\renewcommand{\chaptername}{Poglavlje}
+\renewcommand{\listfigurename}{Lista slika}
+\renewcommand{\listtablename}{Lista tabela}
+\renewcommand\bibname{Reference}
+
+\newcommand*{\defeq}{\stackrel{\text{def}}{=}}
+\newcommand*{\textarrowright}[1]{\stackrel{\text{#1}}{\longrightarrow}}
+\newcommand*{\arrowtext}[1]{\stackrel{\rightarrow}{\text{#1}}}
+
+\newcommand*{\vertbar}{\rule[-1ex]{0.5pt}{2.5ex}}
+\newcommand*{\horzbar}{\rule[.5ex]{2.5ex}{0.5pt}}
+\newcommand{\iu}{{i\mkern1mu}}
+
+\begin{sffamily}
+\thispagestyle{empty}
+{\fontencoding{T2A}\selectfont
+\begin{center}%
+ 	{\large{\scshape{Универзитет у Београду}\\[.5ex]\textsc{Електротехнички факултет}} \par}
+ 	 \vskip 12ex
+    {\large {\includegraphics[scale = 0.5]{etf-pecat.png}}\par}%
+      \vskip 12ex
+    {\LARGE \naslovcir\par}%
+    \vskip 2ex%
+    {\large
+	Мастер рад \par
+    }
+  \end{center}\par
+    \vfill \vfill
+  Студент: \hspace*{\fill} Ментор: \par
+  Марко Гавриловић, 2024/3101 \hspace*{\fill} др Владимир Петровић, доцент \par
+
+  \vfill
+\begin{center}
+{\large Београд, 2026.}
+\end{center}
+}
+\end{sffamily}
+
+\newpage
+\tableofcontents
+\newpage
+
+\listoffigures
+\addcontentsline{toc}{chapter}{Lista slika}
+
+\listoftables
+
+\include{chapters/1-intro}
+\include{chapters/2-crypto_basics}
+\include{chapters/3-algorithms}
+\include{chapters/4-hardware}
+\include{chapters/5-results}
+\include{chapters/6-upgrades}
+\include{chapters/7-conclusion}
+
+\renewcommand{\appendixname}{Dodatak}
+\appendix
+\include{chapters/A-math}
+\include{chapters/B-aes_tables}
+\include{chapters/C-b571}
+\include{chapters/D-keccak}
+
+\bibliographystyle{ieeetr}
+\addcontentsline{toc}{chapter}{Reference}
+\bibliography{refs}
+
+\end{document}

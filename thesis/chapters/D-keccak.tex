@@ -1,0 +1,32 @@
+\chapter{Keccak konstante}
+\label{app:keccak}
+
+\section{Rotacioni ofseti}
+\label{app:keccak_offsets}
+
+Tabela \ref{tab:keccak_offsets} sadrži rotacione ofsete $r_{x,y}$ koraka $\rho$ permutacije Keccak-$f[1600]$ \cite{fips202}: traka $A_{x,y}$ ciklično se pomera za $r_{x,y}$ bitova. U hardveru se ove rotacije svode na preusmeravanje veza (odeljak \ref{subsec:keccak_f}).
+
+\begin{table}[H]
+\caption{Rotacioni ofseti $r_{x,y}$ koraka $\rho$}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.6\textwidth}{!}{
+\input{chapters/tables/keccak_offsets}
+}
+\label{tab:keccak_offsets}
+\end{table}
+
+\section{Konstante rundi}
+\label{app:keccak_rc}
+
+Tabela \ref{tab:keccak_rc} sadrži 24 konstante rundi $RC_i$ koraka $\iota$, koje se sabiraju sa trakom $A_{0,0}$ (odeljak \ref{subsec:keccak_f}). Konstante su definisane linearnim povratnim pomeračkim registrom iz standarda \cite{fips202}.
+
+\begin{table}[H]
+\caption{Konstante rundi $RC_i$ permutacije Keccak-$f[1600]$ (heksadecimalno)}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.85\textwidth}{!}{
+\input{chapters/tables/keccak_rc}
+}
+\label{tab:keccak_rc}
+\end{table}

@@ -1,0 +1,272 @@
+\chapter{Kriptografske osnove}
+\label{ch:osnove}
+
+Ovo poglavlje uspostavlja pojmovni okvir na kome počiva ostatak rada: model komunikacije i osnovnu terminologiju, sigurnosne zahteve koje savremeni komunikacioni sistem mora da ispuni, tri klase kriptografskih algoritama i način na koji se one povezuju u hibridni kriptosistem kakav je realizovan u ovom radu. Sistematičan i detaljniji uvod u kriptografiju dat je u \cite{paar_pelzl, katz_lindell}.
+
+\section{Osnovni pojmovi i model komunikacije}
+\label{sec:osnovni_pojmovi}
+
+Kriptografija proučava tehnike zaštite informacija u prisustvu protivnika. Standardni model podrazumeva dve strane koje komuniciraju preko nezaštićenog kanala i protivnika koji taj kanal može da prisluškuje, a u opštem slučaju i da aktivno menja, briše ili ubacuje poruke. Pošiljalac se tradicionalno zove Alisa, primalac Bob, a protivnik Oskar. U literaturi se sreću i druga imena, najčešće Eva za pasivnog prisluškivača i Malori za aktivnog napadača. U ovom radu dosledno se koristi Oskar, prema konvenciji iz \cite{paar_pelzl}, i to za obe vrste protivnika.
+\smallbreak
+Postupak transformacije izvorne poruke, otvorenog teksta (engl. \textit{plaintext}), u nečitljiv oblik, šifrat (engl. \textit{ciphertext}), naziva se šifrovanje (engl. \textit{encryption}), a obrnuti postupak dešifrovanje (engl. \textit{decryption}). Obe transformacije parametrizovane su ključem. Prema Kerckhoffsovom principu (engl. \textit{Kerckhoffs's principle}), formulisanom još 1883. godine \cite{kerckhoffs1883}, sigurnost sistema ne sme počivati na tajnosti samog algoritma, već isključivo na tajnosti ključa. Algoritam se smatra javno poznatim, a jedino što Oskar ne poznaje jeste ključ. Ovaj princip je danas univerzalno prihvaćen \cite{paar_pelzl}, pa su svi algoritmi korišćeni u ovom radu javni, međunarodno standardizovani i detaljno proučeni u stručnoj zajednici.
+
+\section{Sigurnosni zahtevi}
+\label{sec:sigurnosni_zahtevi}
+
+Bezbedan komunikacioni sistem mora da obezbedi više međusobno nezavisnih svojstava. Za ovaj rad ključna su sledeća četiri.
+\smallbreak
+\textit{Poverljivost} (engl. \textit{confidentiality}) garantuje da sadržaj poruke ostaje nedostupan svakome ko ne poseduje odgovarajući ključ. Ovo je istorijski najstariji i najintuitivniji zahtev kriptografije. Oskar, koji prisluškuje kanal, ne može iz šifrata da rekonstruiše otvoreni tekst, niti da o njemu sazna bilo koju delimičnu informaciju.
+\smallbreak
+\textit{Integritet} (engl. \textit{integrity}) garantuje da poruka nije izmenjena na putu od pošiljaoca do primaoca. Važno je uočiti da poverljivost sama po sebi ne obezbeđuje integritet. Kod mnogih šifara protivnik može ciljano da izmeni šifrat tako da izazove predvidljivu promenu dešifrovanog teksta, ne znajući pritom ključ. Zbog toga se integritet mora obezbediti posebnim mehanizmima, kao što su kodovi za autentifikaciju poruka (engl. \textit{Message Authentication Code}, MAC). Bitno je da takav kod koristi ključ. Običan sažetak štiti samo od slučajnih izmena, jer ga protivnik može preračunati zajedno sa izmenjenom porukom, dok oznaku izračunatu sa tajnim ključem može proizvesti isključivo onaj ko taj ključ poseduje.
+\smallbreak
+\textit{Autentičnost} (engl. \textit{authenticity}) garantuje da poruka zaista potiče od strane koja tvrdi da ju je poslala. Korisno je razlikovati dva nivoa, poreklo pojedinačne poruke i identitet učesnika u vezi. \textit{Autentičnost porekla poruke} sledi neposredno iz mehanizma integriteta. Pošto ispravnu oznaku može izračunati samo posednik ključa, MAC istovremeno obezbeđuje i integritet i poreklo, pa se ta dva svojstva u praksi i ne razdvajaju. \textit{Autentičnost učesnika} je, međutim, pitanje ko se uopšte nalazi na drugom kraju veze, i ono se mora rešiti pre nego što zajednički ključ i postoji. Ako Alisa ne može da proveri da pregovara baš sa Bobom, Oskar može da se postavi između njih i sa svakim od njih uspostavi zaseban ključ, u napadu poznatom kao čovek u sredini (engl. \textit{man-in-the-middle}, MITM). Ovaj drugi nivo ostvaruje se digitalnim potpisima i infrastrukturom javnih ključeva.
+\smallbreak
+Dva nivoa se dopunjuju, a ne zamenjuju. Oznaka koju računa režim autentifikovanog šifrovanja (odeljak \ref{subsubsec:aead}) dokazuje samo da poruka potiče od one strane sa kojom je ključ uspostavljen. Ako sama uspostava ključa nije autentifikovana, ta strana može biti i Oskar, pa otuda i redosled u protokolu. Potpis štiti razmenu ključeva, a oznaka štiti saobraćaj kada ključ već postoji.
+\smallbreak
+\textit{Svežina poruka} je četvrti zahtev. Čak i kada su poverljivost, integritet i autentičnost obezbeđeni, Oskar može da snimi ispravnu šifrovanu poruku i da je kasnije ponovo pošalje, u napadu ponavljanjem (engl. \textit{replay attack}). Odbrana traži da svaka poruka nosi element koji se ne ponavlja, a takva vrednost se naziva nonce (engl. \textit{number used once}): redni broj, vremenska oznaka ili nasumična vrednost dovoljne dužine.
+\smallbreak
+Nonce vrednost se u ovom radu javlja u dve uloge, i jedna ne zamenjuje drugu. Kao mehanizam svežine, treba da omogući primaocu da odbaci poruku koju je već video. Unutar GCM režima, gde nonce ulazi kroz parametar koji standard zove inicijalizacioni vektor (engl. \textit{initialization vector}, $IV$), zahtev da $IV$ bude jedinstven obavezuje samo pošiljaoca, i to zato da isti pseudoslučajni niz ne upotrebi dvaput. Primalac pri tome ne pamti koje je vrednosti $IV$ ranije primio, pa snimljen paket sa svojim izvornim $IV$ i ispravnom oznakom prolazi proveru i drugi put. Zaštita od ponavljanja je zato zaseban mehanizam na nivou protokola, tipično brojač sekvence i prozor prihvatanja kod primaoca, i nije deo GCM režima.
+\smallbreak
+Tabela \ref{tab:zahtevi} povezuje ova četiri zahteva sa mehanizmima kojima se ostvaruju i sa njihovom realizacijom u sistemu opisanom u ovom radu.
+
+\begin{table}[H]
+\caption{Sigurnosni zahtevi, mehanizmi i njihova realizacija u ovom radu}
+\centering
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|}
+\hline
+\rowcolor{gray!30}
+Zahtev & Mehanizam & Realizacija u ovom radu \\
+\hline
+poverljivost & simetrično šifrovanje & AES u CTR režimu (deo GCM-a) \\
+\hline
+\makecell{integritet i\\autentičnost poruke} & \makecell{kod za autentifikaciju\\poruka (MAC)} & GHASH i oznaka u GCM režimu \\
+\hline
+autentičnost učesnika & \makecell{digitalni potpis\\i sertifikati} & \makecell{ECDSA, predviđena\\nadogradnja} \\
+\hline
+svežina poruka & \makecell{brojač sekvence i\\prozor prihvatanja} & van obima rada \\
+\hline
+\end{tabular}
+}
+\label{tab:zahtevi}
+\end{table}
+
+\section{Klase kriptografskih algoritama}
+\label{sec:klase_algoritama}
+
+Savremeni kriptografski algoritmi dele se u tri osnovne klase, koje se međusobno razlikuju po načinu upotrebe ključeva i po problemima koje rešavaju.
+
+\subsection{Algoritmi sa simetričnim ključem}
+\label{subsec:simetricni}
+
+Kod simetričnih algoritama obe strane koriste isti tajni ključ i za šifrovanje i za dešifrovanje. Glavne predstavnike čine blok šifre (engl. \textit{block cipher}), koje podatke obrađuju u blokovima fiksne dužine, i protočne šifre (engl. \textit{stream cipher}), koje generišu pseudoslučajni niz kojim se otvoreni tekst kombinuje bit po bit. Najznačajniji savremeni predstavnik blok šifara je AES, usvojen 2001. godine kao američki federalni standard za obradu informacija (engl. \textit{Federal Information Processing Standard}, FIPS) pod oznakom FIPS 197 \cite{fips197}.
+\smallbreak
+AES nije jedini simetrični algoritam u upotrebi. Trostruka primena starijeg standarda DES (engl. \textit{Data Encryption Standard}), poznata kao 3DES, dugo je bila standard u bankarskim sistemima, ali ju je američki Nacionalni institut za standarde i tehnologiju (engl. \textit{National Institute of Standards and Technology}, NIST) povukao iz upotrebe zbog kratkog bloka od 64 bita i niske brzine \cite{sp800131a}. Protočna šifra ChaCha20, u sprezi sa autentifikatorom Poly1305, standardizovana je za internet protokole \cite{rfc8439} i koristi se u TLS-u 1.3. Njena je posebnost to što je izrazito brza u softveru, na procesorima bez namenskih instrukcija za AES, što je upravo suprotan slučaj od onog koji ovaj rad razmatra. Za uređaje sa strogo ograničenim resursima NIST je 2025. godine standardizovao porodicu ASCON \cite{ascon}. AES je ovde izabran jer je i dalje osnovni standard, jer ga podržava GCM režim rada, i jer je njegova struktura izrazito pogodna za hardversku realizaciju.
+\smallbreak
+Simetrični algoritmi su računski efikasni i pogodni za hardversku realizaciju, pa se praktično sav korisnički saobraćaj u savremenim protokolima štiti upravo njima. Njihova suštinska slabost je problem distribucije ključa. Pre početka komunikacije obe strane moraju posedovati isti tajni ključ, a njega je nemoguće bezbedno preneti preko istog nezaštićenog kanala koji tek treba zaštititi.
+
+\subsubsection{Režimi rada blok šifara}
+\label{subsubsec:rezimi_rada}
+
+Blok šifra sama po sebi definiše transformaciju samo nad jednim blokom fiksne dužine, kod AES-a 128 bitova. Način na koji se šifra primenjuje na poruke proizvoljne dužine definiše režim rada (engl. \textit{mode of operation}) \cite{sp80038a}. Režimi se razlikuju i po sigurnosnim svojstvima i po pogodnosti za hardversku realizaciju. Poređenje tri karakteristična režima dato je u odeljku \ref{subsec:rezimi_rada_detaljno}. Za klasifikaciju je ključno da nijedan od njih sam po sebi ne obezbeđuje integritet poruke.
+
+\subsubsection{Autentifikovano šifrovanje}
+\label{subsubsec:aead}
+
+Pošto poverljivost i integritet zahtevaju odvojene mehanizme, a njihovo nezavisno kombinovanje se u praksi pokazalo sklono suptilnim greškama, razvijeni su režimi autentifikovanog šifrovanja sa pridruženim podacima (engl. \textit{Authenticated Encryption with Associated Data}, AEAD). AEAD režim u jednom prolazu šifruje poruku i računa autentifikacionu oznaku (engl. \textit{authentication tag}) nad šifratom i pridruženim podacima koji se prenose nešifrovani, na primer nad zaglavljima mrežnih paketa. Primalac odbacuje svaku poruku čija oznaka nije ispravna, pre nego što dešifrovani sadržaj uopšte postane dostupan aplikaciji. Najrasprostranjeniji AEAD režim danas je GCM (engl. \textit{Galois/Counter Mode}) \cite{sp80038d}, koji kombinuje CTR režim šifrovanja sa autentifikacijom zasnovanom na množenju u Galoisovom polju. Njegova konstrukcija detaljno je opisana u odeljku \ref{sec:aes_gcm}.
+\smallbreak
+GCM nije jedini AEAD režim. Postoje i konstrukcije koje autentifikaciju ostvaruju samom blok šifrom, bez zasebne aritmetičke jedinice. Režim OCB \cite{rfc7253} postiže autentifikovano šifrovanje u jednom prolazu koristeći isključivo pozive blok šifre, pa u hardveru ne zahteva množač u Galoisovom polju. Njegovo šire usvajanje dugo je kočilo patentno opterećenje, koje je uklonjeno tek 2021. godine. Režim CCM \cite{sp80038c}, korišćen u standardu WPA2, takođe se oslanja samo na blok šifru, ali zahteva dva prolaza kroz podatke, što ga čini nepogodnim za obradu u liniji. Detaljnija razmatranja ovih režima mogu se naći u navedenim standardima, uz napomenu da je raniji OCB2 kriptoanalitički oboren \cite{inoue_ocb2}, dok OCB3 i dalje važi za siguran. U ovom radu izabran je GCM jer je standard u protokolima TLS, IPsec i MACsec, radi u jednom prolazu i dopušta paralelnu obradu blokova. Cena tog izbora je namensko GHASH jezgro, čija je realizacija razmotrena u poglavlju \ref{ch:hardver}.
+
+\subsection{Algoritmi sa asimetričnim ključem}
+\label{subsec:asimetricni}
+
+Asimetrična kriptografija, ili kriptografija javnog ključa, koju su konceptualno uveli Diffie i Hellman 1976. godine \cite{diffie_hellman}, rešava problem distribucije ključa. Svaki učesnik poseduje par matematički povezanih ključeva: javni, koji se slobodno objavljuje, i privatni, koji se čuva u tajnosti. Sigurnost počiva na postojanju jednosmernih funkcija sa zamkom, operacija koje je lako izračunati u jednom smeru, a praktično nemoguće invertovati bez poznavanja privatnog ključa.
+\smallbreak
+Klasični asimetrični sistemi, poput RSA algoritma, zasnivaju se na teškoći faktorizacije velikih brojeva. \textit{Kriptografija eliptičkih krivih} (engl. \textit{Elliptic Curve Cryptography}, ECC), koju su nezavisno predložili Koblitz i Miller sredinom 1980-ih \cite{koblitz, miller}, postiže ekvivalentnu sigurnost sa znatno kraćim ključevima. Sigurnosnom nivou RSA ključa od 3072 bita odgovara eliptička kriva reda veličine 256 bitova. Kraći ključevi znače manje memorije, brže operacije i manju potrošnju, što ECC čini posebno pogodnom za hardversku realizaciju.
+\smallbreak
+Asimetrični algoritmi su za nekoliko redova veličine sporiji od simetričnih, pa se u praksi ne koriste za šifrovanje samih podataka, već za dva specifična zadatka: razmenu ključeva (ECDH protokol, odeljak \ref{sec:ecdh}) i digitalno potpisivanje (na primer ECDSA algoritam), kojim se obezbeđuje autentičnost.
+
+\subsection{Kriptografske heš funkcije}
+\label{subsec:hash}
+
+Kriptografska heš funkcija preslikava poruku proizvoljne dužine u sažetak (engl. \textit{digest}) fiksne dužine. Za razliku od šifara, heš funkcija ne koristi ključ, njena transformacija je javna i deterministička, i nije invertibilna. Iz sažetka se poruka ne rekonstruiše, jer se pri preslikavanju informacija nepovratno sažima.
+\smallbreak
+Da bi bila kriptografski upotrebljiva, heš funkcija mora ispunjavati tri svojstva:
+\begin{itemize}[itemsep=2pt]
+    \item \textit{otpornost na pronalaženje originala} (engl. \textit{preimage resistance}, u matematičkoj literaturi i praslika) -- za dati sažetak $h$ praktično je nemoguće naći poruku $m$ takvu da je $H(m)=h$;
+    \item \textit{otpornost na pronalaženje drugog originala} (engl. \textit{second preimage resistance}) -- za datu poruku $m_1$ praktično je nemoguće naći drugu poruku $m_2 \neq m_1$ sa istim sažetkom;
+    \item \textit{otpornost na kolizije} (engl. \textit{collision resistance}) -- praktično je nemoguće naći bilo koji par različitih poruka sa istim sažetkom.
+\end{itemize}
+\smallbreak
+Poslednje svojstvo je najstrože, i ono određuje potrebnu dužinu sažetka. Zbog takozvanog rođendanskog paradoksa \cite{paar_pelzl}, koliziju u funkciji sa sažetkom od $n$ bitova moguće je naći nasumičnim probanjem posle približno
+\begin{equation}
+    2^{n/2}
+    \label{eq:rodjendanska_granica}
+\end{equation}
+pokušaja, a ne $2^{n}$, koliko bi se naivno očekivalo. Sažetak stoga mora biti dvostruko duži od željenog nivoa sigurnosti. Funkcija SHA3-256 pruža 128 bitova otpornosti na kolizije, a SHA3-512 njih 256. Ta srazmera objašnjava izbor varijanti u ovom radu i biće ponovo korišćena pri usklađivanju sigurnosnih nivoa sva tri algoritma.
+\smallbreak
+Heš funkcije su univerzalni gradivni blok savremenih protokola, pa se koriste za proveru integriteta, u konstrukcijama MAC kodova, kod digitalnih potpisa, gde se potpisuje sažetak poruke a ne poruka sama, i za izvođenje ključeva (engl. \textit{key derivation}), odnosno transformaciju zajedničke tajne dobijene razmenom ključeva u kriptografski upotrebljive ključeve sesije. Upravo je poslednja uloga ta u kojoj heš funkcija učestvuje u sistemu opisanom u ovom radu.
+\smallbreak
+Aktuelni standard je SHA-3, zasnovan na Keccak algoritmu \cite{fips202}. Za razliku od porodice SHA-2, koja počiva na Merkle--Damgardovoj konstrukciji, SHA-3 koristi konstrukciju sunđera, pa kompromitacija jedne familije ne ugrožava drugu. Usput nema ni svojstvo produženja poruke (engl. \textit{length extension}). Okolnosti pod kojima je standard nastao razmotrene su u odeljku \ref{sec:sha3}.
+\smallbreak
+Tabela \ref{tab:klase} sumira osnovne razlike između tri opisane klase.
+
+\begin{table}[H]
+\caption{Poređenje klasa kriptografskih algoritama}
+\centering
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\rowcolor{gray!30}
+Klasa & Ključ & Brzina & Uloga & U ovom radu \\
+\hline
+simetrični & zajednički tajni & visoka & zaštita saobraćaja & AES-GCM \\
+\hline
+asimetrični & javni i privatni & niska & razmena ključeva i potpis & ECDH \\
+\hline
+heš funkcije & bez ključa & visoka & integritet i izvođenje ključeva & SHA-3 (KMAC) \\
+\hline
+\end{tabular}
+}
+\label{tab:klase}
+\end{table}
+
+\section{Hibridni kriptosistem}
+\label{sec:hibridni_sistem}
+
+Nijedna od opisanih klasa algoritama sama po sebi ne rešava sve sigurnosne zahteve iz odeljka \ref{sec:sigurnosni_zahtevi}. Simetrične šifre efikasno štite podatke, ali zahtevaju prethodno dogovoren ključ. Asimetrični algoritmi omogućavaju dogovor ključa preko javnog kanala, ali su prespori za zaštitu samog saobraćaja. Heš funkcije obezbeđuju integritet i izvođenje ključeva, ali same ne šifruju. Savremeni protokoli zato kombinuju sve tri klase u hibridni kriptosistem, u kome svaki algoritam obavlja zadatak za koji je najpogodniji.
+\smallbreak
+Akcelerator realizovan u ovom radu prati upravo ovu arhitekturu. Tok uspostavljanja i korišćenja bezbednog kanala odvija se u tri faze:
+\begin{enumerate}[itemsep=2pt]
+    \item \textit{Razmena ključeva (ECDH).} Alisa i Bob razmenjuju javne ključeve i, svako korišćenjem svog privatnog ključa, izračunavaju istu zajedničku tajnu. Oskar, koji prisluškuje kanal, vidi oba javna ključa, ali iz njih ne može izračunati zajedničku tajnu.
+    \item \textit{Izvođenje ključeva (SHA-3).} Zajednička tajna dobijena ECDH razmenom nije uniformno raspodeljena i ne koristi se neposredno kao ključ. Umesto toga, propušta se kroz funkciju za izvođenje ključeva, u ovom radu KMAC konstrukciju zasnovanu na SHA-3 (odeljak \ref{subsec:kmac}), kojom se izvode ključ sesije i inicijalne vrednosti potrebne AEAD režimu.
+    \item \textit{Zaštita saobraćaja (AES-GCM).} Izvedenim ključem sesije korisnički saobraćaj se šifruje u GCM režimu, koji svakom paketu pridružuje autentifikacionu oznaku, čime su poverljivost i integritet obezbeđeni u jednom prolazu.
+\end{enumerate}
+\smallbreak
+Opisani tok prikazan je na slici \ref{fig:hibridni_tok}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.0cm, font=\small]
+
+% ----- naslovi strana -----
+\node (alisa) at (-3.1, 0) {\textbf{Alisa}};
+\node (bob)   at ( 3.1, 0) {\textbf{Bob}};
+\node[draw=black, dashed, rounded corners, minimum width=1.9cm, minimum height=0.7cm,
+      text centered, fill=gray!12] (oskar) at (0, 0) {Oskar};
+
+% ----- faza 1: ECDH -----
+\node[blokdata, below=0.7cm of alisa, minimum width=2.6cm] (privA) {privatni $d_A$};
+\node[blokdata, below=0.7cm of bob,   minimum width=2.6cm] (privB) {privatni $d_B$};
+
+\node[blokkripto, below=0.6cm of privA, minimum width=2.6cm] (mulA) {ECDH: $Q_A = d_A G$};
+\node[blokkripto, below=0.6cm of privB, minimum width=2.6cm] (mulB) {ECDH: $Q_B = d_B G$};
+
+% razmena javnih kljuceva preko nezasticenog kanala (dve paralelne vodoravne strelice)
+\draw[strelica] ($(mulA.east)+(0,0.16)$) -- node[above, font=\scriptsize] {$Q_A$}
+                ($(mulB.west)+(0,0.16)$);
+\draw[strelica] ($(mulB.west)+(0,-0.16)$) -- node[below, font=\scriptsize] {$Q_B$}
+                ($(mulA.east)+(0,-0.16)$);
+
+\node[blokkripto, below=1.5cm of mulA, minimum width=2.6cm] (secA) {$Z = d_A Q_B$};
+\node[blokkripto, below=1.5cm of mulB, minimum width=2.6cm] (secB) {$Z = d_B Q_A$};
+\draw[strelica] (mulA) -- (secA);
+\draw[strelica] (mulB) -- (secB);
+
+% Oskar posmatra nezasticeni kanal
+\coordinate (kanal) at ($(mulA.south)!0.5!(secA.north)$);
+\draw[dashed, gray] (oskar.south) -- (kanal -| oskar);
+
+% ----- faza 2: KDF -----
+\node[blokdata, below=0.9cm of $(secA)!0.5!(secB)$, minimum width=4.4cm] (Z)
+      {zajednička tajna $Z$};
+% obe grane se spajaju u istu tacku, pa jedna strelica ulazi u Z
+\coordinate (spoj) at ($(Z.north)+(0,0.35)$);
+\draw[thick] (secA.south) |- (spoj);
+\draw[thick] (secB.south) |- (spoj);
+\draw[strelica] (spoj) -- (Z.north);
+
+\node[blokghash, below=0.7cm of Z, minimum width=4.4cm] (kdf)
+      {SHA-3 / KMAC: izvođenje ključeva};
+\draw[strelica] (Z) -- (kdf);
+
+\node[blokdata, below=0.7cm of kdf, minimum width=4.4cm] (K)
+      {ključ sesije $K$, nonce};
+\draw[strelica] (kdf) -- (K);
+
+% ----- faza 3: AES-GCM -----
+\node[blokkripto, below=0.7cm of K, minimum width=4.4cm] (gcm)
+      {AES-GCM: šifrovanje i oznaka};
+\draw[strelica] (K) -- (gcm);
+
+\node[blokdata, left=1.1cm of gcm, minimum width=2.1cm] (pt) {otvoreni tekst};
+\draw[strelica] (pt) -- (gcm);
+
+\node[blokrezultat, below=0.7cm of gcm, minimum width=4.4cm] (ct)
+      {šifrat $\mathrm{CT}$ i oznaka $\mathrm{ICV}$};
+\draw[strelica] (gcm) -- (ct);
+
+% ----- vodoravni razdelnici faza -----
+\coordinate (sepA) at (0, 0.85);
+\path (Z.south) -- (kdf.north) coordinate[midway] (sepB);
+\path (K.south) -- (gcm.north) coordinate[midway] (sepC);
+\coordinate (sepD) at ($(ct.south)+(0,-0.35)$);
+
+\foreach \s in {sepA, sepB, sepC}{
+    \draw[dashed, gray!65] ($(\s)+(-6.6,0)$) -- ($(\s)+(6.6,0)$);
+}
+
+% ----- naziv faze, sa desne strane i po sredini svog odeljka -----
+\coordinate (desno) at (6.6, 0);
+\path (sepA) -- (sepB) coordinate[midway] (sred1);
+\path (sepB) -- (sepC) coordinate[midway] (sred2);
+\path (sepC) -- (sepD) coordinate[midway] (sred3);
+
+\node[anchor=east, align=right, text width=2.0cm, font=\footnotesize]
+     at (desno |- sred1) {\textbf{1. faza}\\razmena\\ključeva};
+\node[anchor=east, align=right, text width=2.0cm, font=\footnotesize]
+     at (desno |- sred2) {\textbf{2. faza}\\izvođenje\\ključeva};
+\node[anchor=east, align=right, text width=2.0cm, font=\footnotesize]
+     at (desno |- sred3) {\textbf{3. faza}\\zaštita\\saobraćaja};
+
+\end{tikzpicture}
+\caption[Tok hibridnog kriptosistema]{Tok hibridnog kriptosistema realizovanog u ovom radu. Boje označavaju vrstu bloka: zelena su podaci, žuta
+kriptografske operacije, cijan izvođenje ključeva, a ljubičasta zaštićeni izlaz.}
+\label{fig:hibridni_tok}
+\end{figure}
+
+Sistem tako obezbeđuje poverljivost saobraćaja, njegov integritet i autentičnost porekla kroz oznaku koju računa GCM. Nonce vrednost pri tome čuva jedinstvenost pseudoslučajnog niza, dok zaštitu od ponovljenih poruka, po tabeli \ref{tab:zahtevi}, mora da obezbedi protokolski sloj iznad, tipično brojačem sekvence i prozorom prihvatanja. Preostaje zahtev autentičnosti učesnika. Bez potpisivanja javnih ključeva prva faza je ranjiva na napad čoveka u sredini, budući da Alisa nema način da utvrdi da javni ključ koji je primila zaista pripada Bobu, a ne Oskaru. U praksi se taj problem rešava digitalnim potpisom, tipično algoritmom ECDSA nad istom klasom eliptičkih krivih, u sprezi sa infrastrukturom sertifikata.
+\smallbreak
+Vredi naglasiti da dodavanje ECDSA nije puko proširenje već realizovanog hardvera. Sa ECDH protokolom ono deli samo skalarno množenje na krivoj, a pun obim nadogradnje, od aritmetike po modulu reda grupe do sabiranja dve nezavisne tačke pri proveri potpisa, razmatra odeljak \ref{sec:unap_sistem}.
+\smallbreak
+Preostaje da se vidi na kom nivou ceo lanac stoji. Sistem je jak koliko i njegova najslabija karika, pa parametri izabrani u poglavlju \ref{ch:algoritmi} nisu birani nezavisno, nego tako da svi budu na istom nivou. Pregled je dat u tabeli \ref{tab:nivoi_sigurnosti}.
+
+\begin{table}[H]
+\caption{Sigurnosni nivo pojedinih karika sistema. Nivo ECDH jezgra je polovina bitske dužine reda tačke (odeljak \ref{subsec:skalarno_mnozenje})}
+\centering
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.4}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|}
+\hline
+\rowcolor{gray!30}
+Uloga u sistemu & Algoritam i parametar & Sigurnosni nivo \\
+\hline
+razmena ključeva & ECDH nad krivom B-571 & $\approx 285$ bitova \\
+\hline
+izvođenje ključeva & KMAC256 & 256 bitova \\
+\hline
+šifrovanje & AES-256 & 256 bitova \\
+\hline
+autentifikacija poruke & \makecell{oznaka GCM\\od 128 bitova} & \makecell{128 bitova\\po pokušaju} \\
+\hline
+\end{tabular}
+}
+\label{tab:nivoi_sigurnosti}
+\end{table}
+
+Poslednji red odskače i traži objašnjenje, jer dužina oznake ne meri isto što i dužina ključa. Ključ štiti od čitanja saobraćaja, a oznaka od podmetanja izmenjene poruke. Napad na ključ izvodi se \textit{offline}, van veze, pa napadač radi svojim tempom i na sopstvenoj opremi. Falsifikovanje oznake mora se izvoditi \textit{online}, u vezi sa primaocem, jer se oznaka bez ključa ne može proveriti, pa svaki pokušaj košta jedan poslat i odbijen paket. Oznaka od 128 bitova je zato standardan izbor i ne spušta nivo sistema.

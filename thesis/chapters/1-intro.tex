@@ -1,0 +1,29 @@
+\chapter{Uvod}
+\label{ch:uvod}
+
+Savremeni svet počiva na razmeni digitalnih informacija. Količina podataka koja se svakodnevno prenosi kroz računarske mreže neprestano raste, a sa njom i potreba da ti podaci budu zaštićeni, kako od neovlašćenog čitanja, tako i od neprimetne izmene. Kriptografija, nekada disciplina rezervisana za vojne i diplomatske potrebe, danas je ugrađena u gotovo svaki aspekt digitalnog života, od onlajn bankarstva i elektronske trgovine, preko virtuelnih privatnih mreža, do komunikacije uređaja u industrijskim postrojenjima i automobilima.
+\smallbreak
+Zaštita komunikacije u praksi nikada ne počiva na jednom kriptografskom algoritmu. Bezbedan komunikacioni kanal zahteva rešavanje više nezavisnih problema. Dve strane najpre moraju da uspostave zajednički tajni ključ preko nezaštićenog medijuma, zatim da iz tog zajedničkog materijala izvedu ključeve sesije, i konačno da svaku poruku šifruju tako da primalac može da proveri i njenu poverljivost i njen integritet. Moderni protokoli, poput TLS-a (engl. \textit{Transport Layer Security}) ili IPsec-a, zbog toga kombinuju više algoritama različitih klasa u jedinstven hibridni kriptosistem: asimetrične algoritme za razmenu ključeva, heš funkcije za izvođenje ključeva i proveru integriteta, i simetrične šifre za zaštitu samih podataka.
+\smallbreak
+Sa porastom brzina mrežnih interfejsa, softverska realizacija ovih algoritama na procesorima opšte namene postaje usko grlo. Kriptografske operacije su računski intenzivne, a njihovo izvršavanje na procesoru troši resurse koji bi mogli biti iskorišćeni za samu aplikaciju. Prirodno rešenje je izmeštanje kriptografskih operacija u namenski hardver, takozvani kriptografski akcelerator. FPGA (engl. \textit{Field Programmable Gate Array}) platforme su za ovu namenu posebno pogodne, jer nude paralelizam i propusnost blisku namenskim integrisanim kolima, uz zadržavanje fleksibilnosti rekonfiguracije, što je značajno u oblasti u kojoj se standardi i preporuke vremenom menjaju. Kao ciljna platforma u ovom radu izabran je razvojni sistem Kria KR260, sa čipom Zynq UltraScale+ MPSoC. Taj čip na istom silicijumu objedinjuje programabilnu logiku i procesorski sistem, pa akcelerator može da radi samostalno, ali i pod upravom softvera koji se izvršava na istom čipu. Ta mogućnost iskorišćena je za ispitivanje jednog od realizovanih jezgara na ploči, preko namenskog upravljačkog programa.
+\smallbreak
+Cilj ovog rada je projektovanje kriptografskog akceleratora na FPGA platformi koji objedinjuje tri algoritma savremene kriptografije, po jedan iz svake ključne klase:
+\begin{itemize}[itemsep=2pt]
+    \item ECDH (engl. \textit{Elliptic Curve Diffie--Hellman}) -- protokol za uspostavljanje zajedničkog tajnog ključa zasnovan na eliptičkim krivama, realizovan nad binarnim poljem korišćenjem krive B-571;
+    \item SHA-3 (engl. \textit{Secure Hash Algorithm 3}) -- standardizovana kriptografska heš funkcija zasnovana na Keccak algoritmu, korišćena kroz KMAC konstrukciju za izvođenje ključeva i proveru integriteta;
+    \item AES-GCM (engl. \textit{Advanced Encryption Standard -- Galois/Counter Mode}) -- autentifikovana simetrična šifra koja u jednom prolazu obezbeđuje i poverljivost i integritet podataka.
+\end{itemize}
+\smallbreak
+Ova tri algoritma zajedno čine funkcionalnu celinu u kojoj ECDH obezbeđuje zajedničku tajnu, SHA-3 iz nje izvodi ključeve sesije, a AES-GCM tim ključevima štiti korisnički saobraćaj. Za potpun bezbedan sistem neophodna je još i autentifikacija učesnika u razmeni ključeva, koja se tipično ostvaruje algoritmom digitalnog potpisa kao što je ECDSA (engl. \textit{Elliptic Curve Digital Signature Algorithm}). Njegova realizacija prevazilazi obim ovog rada, ali je njegova uloga u sistemu razmotrena na odgovarajućim mestima.
+\smallbreak
+Sve hardverske arhitekture opisane u radu realizovane su u jeziku za opis hardvera VHDL, korišćenjem alata AMD Vivado. Provera je izvedena na više nivoa, simulacijom nad standardizovanim test vektorima, namenskim testovima graničnih slučajeva i merenjem na samoj ploči. SHA-3 akcelerator pušten je pod operativnim sistemom PetaLinux, preko upravljačkog programa napisanog za tu namenu, a AES-GCM akcelerator proveren je umetnut u postojeći mrežni sistem. Pored hardverskih realizacija, razvijeni su i softverski referentni modeli, koji služe za proveru ispravnosti i kao osnova za poređenje performansi.
+\smallbreak
+Rad je organizovan na sledeći način. U drugom poglavlju dat je pregled osnovnih pojmova kriptografije, od sigurnosnih zahteva i klasa algoritama do načina na koji se oni kombinuju u hibridni kriptosistem kakav je realizovan u ovom radu.
+\smallbreak
+Treće poglavlje teorijski obrađuje tri korišćena algoritma, od matematičkih osnova eliptičkih krivih i ECDH protokola, preko sponge konstrukcije i Keccak permutacije na kojima počiva SHA-3, do AES algoritma u GCM režimu rada sa pripadajućom GHASH funkcijom.
+\smallbreak
+U četvrtom poglavlju opisane su hardverske arhitekture akceleratora za svaki od algoritama i njihova integracija u sistem.
+\smallbreak
+Peto poglavlje prikazuje metodologiju verifikacije i postignute rezultate, zauzeće resursa, radne učestanosti, latenciju skalarnog množenja i propusnost, uz poređenje SHA-3 jezgra sa softverskim realizacijama.
+\smallbreak
+Šesto poglavlje razmatra moguća unapređenja, od zaokruživanja sistema na ploči, preko pomeranja granice propusnosti puta podataka, do razvoja upravljačke ravni i postkvantne zamene razmene ključa, a sedmo donosi zaključak.

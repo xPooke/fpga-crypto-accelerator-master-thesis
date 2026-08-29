@@ -1,0 +1,33 @@
+\chapter{AES tabele}
+\label{app:aes_tabele}
+
+\section{S-boks}
+\label{app:sbox}
+
+Tabela \ref{tab:sbox} sadrži kompletan S-boks AES algoritma \cite{fips197}. Vrsta se bira gornjim, a kolona donjim polubajtom ulaznog bajta. Za ulaz $\{53\}$ vrednost se nalazi u vrsti \texttt{5} i koloni \texttt{3}, i iznosi $\{ED\}$, što je primer korišćen u odeljku o SubBytes transformaciji. Inverzni S-boks u ovom radu nije potreban, budući da GCM režim koristi AES isključivo u smeru šifrovanja.
+
+\begin{table}[H]
+\caption{AES S-boks: vrsta je gornji, kolona donji polubajt ulaza (heksadecimalno)}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+\resizebox{0.92\textwidth}{!}{
+\input{chapters/tables/sbox}
+}
+\label{tab:sbox}
+\end{table}
+
+\section{Konstante rundi ekspanzije ključa}
+\label{app:rcon}
+
+Tabela \ref{tab:rcon} sadrži konstante $Rcon_i = (x^{i-1}, \{00\}, \{00\}, \{00\})$ koje se koriste u ekspanziji ključa. Prikazan je prvi bajt $x^{i-1}$, izračunat u polju $\mathrm{GF}(2^8)$. AES-256 koristi konstante do $Rcon_7$, dok AES-128 koristi svih deset.
+
+\begin{table}[H]
+\caption{Rcon konstante ekspanzije ključa (prvi bajt, heksadecimalno)}
+\centering
+\renewcommand{\arraystretch}{1.15}
+\resizebox{0.7\textwidth}{!}{
+\input{chapters/tables/rcon}
+}
+\label{tab:rcon}
+\end{table}
