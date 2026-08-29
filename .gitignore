@@ -1,0 +1,34 @@
+# LaTeX build
+thesis/*.aux
+thesis/chapters/*.aux
+thesis/*.log
+thesis/*.out
+thesis/*.toc
+thesis/*.lof
+thesis/*.lot
+thesis/*.bbl
+thesis/*.blg
+thesis/main.pdf
+
+# GHDL / simulacija
+*.cf
+work-obj*.cf
+*.ghw
+*.vcd
+
+# Vivado ostaci
+cong/
+clockInfo.txt
+iter_*_CongestedCLBsAndNets.txt
+*.jou
+vivado*.log
+.Xil/
+
+# Regenerabilni izlazi merenja
+/aes_gcm/Results/
+/sha3/Results/
+/ecdh/Results/
+
+# Python
+__pycache__/
+*.pyc
