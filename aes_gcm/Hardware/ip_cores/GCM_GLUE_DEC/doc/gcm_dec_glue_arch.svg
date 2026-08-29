@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 860" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect id="bg" x="0" y="0" width="100%" height="100%" fill="#FFFFFF"/>
+
+  <!-- ======================= crypto boundary ======================= -->
+  <rect x="292" y="230" width="216" height="106" rx="10" fill="none"
+        stroke="#6D28D9" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="400" y="244" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#5B21B6">crypto boundary</text>
+
+  <!-- ======================= modules ======================= -->
+  <!-- S_AXIS_IN (port) -->
+  <rect x="30" y="40" width="110" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="85" y="60" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">S_AXIS_IN</text>
+  <text x="85" y="78" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#444441">AAD &#8214; CT &#8214; ICV</text>
+
+  <!-- byte_reverse in -->
+  <rect x="170" y="48" width="110" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="225" y="62" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">byte_reverse</text>
+  <text x="225" y="77" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56">AXIS &#8594; block order</text>
+
+  <!-- axis_demux_dec -->
+  <rect x="310" y="40" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="400" y="60" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">axis_demux_dec</text>
+  <text x="400" y="78" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">AAD / CT / ICV split + lengths</text>
+
+  <!-- CT broadcaster : fed straight from the demux, BEFORE the XOR -->
+  <rect x="310" y="150" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="400" y="170" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">axis_broadcaster</text>
+  <text x="400" y="188" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">CT &#215;2</text>
+
+  <!-- KEY / IV (port) -->
+  <rect x="30" y="180" width="110" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="85" y="200" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">KEY / IV</text>
+  <text x="85" y="218" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#444441">i_key, i_IV</text>
+
+  <!-- CRYPTO ALG (external) -->
+  <rect x="310" y="260" width="180" height="66" rx="8" fill="#EFEAFB" stroke="#6D28D9" stroke-width="0.5"/>
+  <text x="400" y="279" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#5B21B6">CRYPTO ALG</text>
+  <text x="400" y="297" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#6D28D9">CT &#8853; keystream &#8594; PT</text>
+  <text x="400" y="313" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#6D28D9">H = E(0),&#8195;E(J0)</text>
+
+  <!-- AAD broadcaster -->
+  <rect x="30" y="300" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="120" y="320" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">axis_broadcaster</text>
+  <text x="120" y="338" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">AAD &#215;2</text>
+
+  <!-- axis_ghash_mux -->
+  <rect x="570" y="180" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="660" y="200" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">axis_ghash_mux</text>
+  <text x="660" y="218" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">AAD then CT, in order</text>
+
+  <!-- H-freshness gate -->
+  <rect x="570" y="272" width="180" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="660" y="286" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">H-freshness gate</text>
+  <text x="660" y="301" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56">holds a packet while h_stale</text>
+
+  <!-- skid buffer -->
+  <rect x="570" y="330" width="180" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="660" y="344" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">AXIS_skid_buffer</text>
+  <text x="660" y="359" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56">1-deep, breaks TREADY</text>
+
+  <!-- GHASH wrapper -->
+  <rect x="570" y="392" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="660" y="412" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">GHASH_wrapper</text>
+  <text x="660" y="430" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">absorb blocks + lengths</text>
+
+  <!-- Tag Verifier -->
+  <rect x="570" y="492" width="180" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="660" y="512" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">Tag_Verifier</text>
+  <text x="660" y="530" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">Y &#8853; E(J0) == ICV ?</text>
+
+  <!-- axis_mux_dec -->
+  <rect x="140" y="612" width="300" height="56" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="290" y="632" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#085041">axis_mux_dec</text>
+  <text x="290" y="650" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#0F6E56">AAD &#8594; PT; last beat waits for the verdict</text>
+
+  <!-- byte_reverse out -->
+  <rect x="474" y="620" width="110" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="529" y="634" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">byte_reverse</text>
+  <text x="529" y="649" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#0F6E56">block order &#8594; AXIS</text>
+
+  <!-- M_AXIS_OUT (port) -->
+  <rect x="620" y="612" width="130" height="56" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="685" y="632" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="500" fill="#2C2C2A">M_AXIS_OUT</text>
+  <text x="685" y="650" text-anchor="middle" dominant-baseline="central" font-size="12" fill="#444441">AAD &#8214; PT</text>
+
+  <!-- AUTH (port) -->
+  <rect x="140" y="716" width="190" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="235" y="733" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#2C2C2A">o_auth_ok / o_dec_done</text>
+  <text x="235" y="750" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">strobed with the final TLAST</text>
+
+  <!-- ======================= AXIS arrows (solid) ======================= -->
+  <g fill="none" stroke="#2C2C2A" stroke-width="1.5">
+    <path d="M140 68 L170 68" marker-end="url(#arrowhead)"/>
+    <path d="M280 68 L310 68" marker-end="url(#arrowhead)"/>
+    <!-- demux -> AAD bc -->
+    <path d="M340 96 L340 122 L120 122 L120 300" marker-end="url(#arrowhead)"/>
+    <!-- demux -> CT bc -->
+    <path d="M430 96 L430 150" marker-end="url(#arrowhead)"/>
+    <!-- CT bc -> CRYPTO -->
+    <path d="M400 206 L400 260" marker-end="url(#arrowhead)"/>
+    <!-- CT bc (m1) -> ghash_mux : the RECEIVED CT, before the XOR -->
+    <path d="M490 178 L556 178 L556 208 L570 208" marker-end="url(#arrowhead)"/>
+    <!-- AAD bc (m1) -> ghash_mux -->
+    <path d="M210 312 L236 312 L236 380 L536 380 L536 194 L570 194" marker-end="url(#arrowhead)"/>
+    <!-- ghash_mux -> gate -> skid -> GHASH -->
+    <path d="M660 236 L660 272" marker-end="url(#arrowhead)"/>
+    <path d="M660 312 L660 330" marker-end="url(#arrowhead)"/>
+    <path d="M660 370 L660 392" marker-end="url(#arrowhead)"/>
+    <!-- demux -> Tag_Verifier : the received ICV -->
+    <path d="M490 82 L790 82 L790 520 L750 520" marker-end="url(#arrowhead)"/>
+    <!-- AAD bc (m2) -> axis_mux_dec -->
+    <path d="M120 356 L120 640 L140 640" marker-end="url(#arrowhead)"/>
+    <!-- CRYPTO -> axis_mux_dec : PT -->
+    <path d="M400 326 L400 612" marker-end="url(#arrowhead)"/>
+    <!-- axis_mux_dec -> byte_reverse -> M_AXIS -->
+    <path d="M440 640 L474 640" marker-end="url(#arrowhead)"/>
+    <path d="M584 640 L620 640" marker-end="url(#arrowhead)"/>
+  </g>
+
+  <!-- ======================= side-band (orange dashed) ======================= -->
+  <g fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3">
+    <!-- key / IV passed straight through to the algorithm -->
+    <path d="M140 208 L226 208 L226 276 L310 276" marker-end="url(#arrowhead)"/>
+    <!-- CRYPTO -> GHASH : H (+ h_stale, which drives the gate) -->
+    <path d="M310 288 L268 288 L268 420 L570 420" marker-end="url(#arrowhead)"/>
+    <!-- CRYPTO -> Tag_Verifier : E(J0) -->
+    <path d="M310 312 L250 312 L250 534 L570 534" marker-end="url(#arrowhead)"/>
+    <!-- GHASH -> Tag_Verifier : Y -->
+    <path d="M660 448 L660 492" marker-end="url(#arrowhead)"/>
+    <!-- Tag_Verifier -> axis_mux_dec : the verdict -->
+    <path d="M660 548 L660 586 L290 586 L290 612" marker-end="url(#arrowhead)"/>
+    <!-- axis_mux_dec -> AUTH port -->
+    <path d="M235 668 L235 716" marker-end="url(#arrowhead)"/>
+    <!-- demux -> GHASH : bit lengths -->
+    <path d="M490 54 L816 54 L816 406 L750 406" marker-end="url(#arrowhead)"/>
+  </g>
+
+  <!-- ======================= arrow labels ======================= -->
+  <g font-size="12" fill="#2C2C2A">
+    <text x="248" y="116">AAD</text>
+    <text x="438" y="132">CT</text>
+    <text x="408" y="240">CT</text>
+    <text x="496" y="172">CT  (before the XOR)</text>
+    <text x="330" y="374">AAD</text>
+    <text x="86"  y="480">AAD</text>
+    <text x="408" y="500">PT</text>
+    <text x="600" y="76">received ICV</text>
+  </g>
+  <g font-size="12" fill="#993C1D">
+    <text x="150" y="202">key / IV</text>
+    <text x="380" y="414">H, h_stale</text>
+    <text x="380" y="528">E(J0)</text>
+    <text x="668" y="476">Y</text>
+    <text x="330" y="580">auth_ok, auth_valid</text>
+    <text x="600" y="48">aad / ct bit len</text>
+  </g>
+
+  <!-- ======================= legend ======================= -->
+  <g font-size="12">
+    <rect x="30" y="800" width="18" height="18" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="56" y="809" dominant-baseline="central" fill="#2C2C2A">Custom RTL</text>
+
+    <rect x="150" y="800" width="18" height="18" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+    <text x="176" y="809" dominant-baseline="central" fill="#2C2C2A">Top-level port</text>
+
+    <rect x="290" y="800" width="18" height="18" rx="4" fill="#EFEAFB" stroke="#6D28D9" stroke-width="0.5"/>
+    <text x="316" y="809" dominant-baseline="central" fill="#2C2C2A">External algorithm</text>
+
+    <path d="M470 809 L516 809" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <text x="524" y="809" dominant-baseline="central" fill="#2C2C2A">AXI Stream</text>
+
+    <path d="M630 809 L676 809" fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowhead)"/>
+    <text x="684" y="809" dominant-baseline="central" fill="#2C2C2A">Side-band</text>
+  </g>
+</svg>

@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 720" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF"/>
+
+  <text x="30" y="26" font-size="15" font-weight="600" fill="#2C2C2A">FLOW_STYLE  —  who gets to clock, and when</text>
+  <text x="30" y="44" font-size="12" fill="#5F5E5A">Both control the SAME pipeline (aes_enc_pipelined). Only the clock-enable logic differs. UNROLLED only.</text>
+
+  <line x1="480" y1="60" x2="480" y2="600" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ==================================================================== -->
+  <!-- LEFT: GLOBAL                                                          -->
+  <!-- ==================================================================== -->
+  <rect x="30" y="70" width="420" height="34" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="240" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#085041">FLOW_STYLE = "GLOBAL"</text>
+
+  <text x="30" y="126" font-size="12" fill="#5F5E5A">One enable. The whole pipeline steps, or none of it does.</text>
+
+  <!-- the single CE source -->
+  <rect x="30" y="146" width="150" height="70" rx="8" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+  <text x="105" y="164" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#993C1D">w_clk_en</text>
+  <text x="105" y="182" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#993C1D">m_tready = '1'</text>
+  <text x="105" y="196" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#993C1D">OR (s_tvalid AND</text>
+  <text x="105" y="210" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#993C1D">last stage empty)</text>
+
+  <!-- fan-out bus -->
+  <path d="M180 181 L212 181" fill="none" stroke="#D85A30" stroke-width="1.5"/>
+  <path d="M212 181 L212 470" fill="none" stroke="#D85A30" stroke-width="2"/>
+  <text x="188" y="490" font-size="10" font-weight="600" fill="#993C1D">one wire, fanned to every stage</text>
+
+  <g fill="none" stroke="#D85A30" stroke-width="1.2">
+    <path d="M212 258 L246 258" marker-end="url(#arrowhead)"/>
+    <path d="M212 308 L246 308" marker-end="url(#arrowhead)"/>
+    <path d="M212 358 L246 358" marker-end="url(#arrowhead)"/>
+    <path d="M212 408 L246 408" marker-end="url(#arrowhead)"/>
+    <path d="M212 458 L246 458" marker-end="url(#arrowhead)"/>
+  </g>
+
+  <!-- the stages -->
+  <g font-size="11">
+    <rect x="248" y="240" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="338" y="258" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 0</text>
+
+    <rect x="248" y="290" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="338" y="308" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 1</text>
+
+    <rect x="248" y="340" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="338" y="358" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 2</text>
+
+    <rect x="248" y="390" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="338" y="408" text-anchor="middle" dominant-baseline="central" fill="#085041">&#8942;</text>
+
+    <rect x="248" y="440" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="338" y="458" text-anchor="middle" dominant-baseline="central" fill="#085041">stage NR+1</text>
+  </g>
+
+  <text x="30" y="522" font-size="11" fill="#2C2C2A" font-weight="600">Consequence</text>
+  <text x="30" y="540" font-size="11" fill="#5F5E5A">The last stage backs up &#8594; every stage freezes.</text>
+  <text x="30" y="556" font-size="11" fill="#5F5E5A">A bubble in the middle stays a bubble: the pipeline</text>
+  <text x="30" y="572" font-size="11" fill="#5F5E5A">cannot compact it away.</text>
+  <text x="30" y="592" font-size="11" fill="#0F6E56">Cost: one AND/OR. Source of truth = the valid vector</text>
+  <text x="30" y="608" font-size="11" fill="#0F6E56">itself, so nothing can desync.</text>
+
+  <!-- ==================================================================== -->
+  <!-- RIGHT: PER_STAGE                                                      -->
+  <!-- ==================================================================== -->
+  <rect x="510" y="70" width="420" height="34" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="720" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#085041">FLOW_STYLE = "PER_STAGE"</text>
+
+  <text x="510" y="126" font-size="12" fill="#5F5E5A">One counter per stage. Each stage decides for itself.</text>
+
+  <text x="510" y="152" font-size="10.5" font-weight="600" fill="#993C1D">CE(i) = m_tready OR (counter(i) &lt; DEPTH&#8722;i AND s_tvalid)</text>
+  <text x="510" y="170" font-size="10.5" fill="#5F5E5A">The threshold shrinks as i grows: a late stage has fewer</text>
+  <text x="510" y="185" font-size="10.5" fill="#5F5E5A">slots left ahead of it, so it is the first to hold.</text>
+
+  <!-- per-stage counters -->
+  <g font-size="10">
+    <rect x="530" y="240" width="74" height="36" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+    <text x="567" y="252" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#993C1D">cnt(0)</text>
+    <text x="567" y="266" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#993C1D">&lt; DEPTH</text>
+
+    <rect x="530" y="290" width="74" height="36" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+    <text x="567" y="302" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#993C1D">cnt(1)</text>
+    <text x="567" y="316" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#993C1D">&lt; DEPTH&#8722;1</text>
+
+    <rect x="530" y="340" width="74" height="36" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+    <text x="567" y="352" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#993C1D">cnt(2)</text>
+    <text x="567" y="366" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#993C1D">&lt; DEPTH&#8722;2</text>
+
+    <rect x="530" y="390" width="74" height="36" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+    <text x="567" y="408" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#993C1D">&#8942;</text>
+
+    <rect x="530" y="440" width="74" height="36" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+    <text x="567" y="452" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#993C1D">cnt(NR+1)</text>
+    <text x="567" y="466" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#993C1D">&lt; 1</text>
+  </g>
+
+  <g fill="none" stroke="#D85A30" stroke-width="1.2">
+    <path d="M606 258 L640 258" marker-end="url(#arrowhead)"/>
+    <path d="M606 308 L640 308" marker-end="url(#arrowhead)"/>
+    <path d="M606 358 L640 358" marker-end="url(#arrowhead)"/>
+    <path d="M606 408 L640 408" marker-end="url(#arrowhead)"/>
+    <path d="M606 458 L640 458" marker-end="url(#arrowhead)"/>
+  </g>
+
+  <g font-size="11">
+    <rect x="642" y="240" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="732" y="258" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 0</text>
+
+    <rect x="642" y="290" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="732" y="308" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 1</text>
+
+    <rect x="642" y="340" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="732" y="358" text-anchor="middle" dominant-baseline="central" fill="#085041">stage 2</text>
+
+    <rect x="642" y="390" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="732" y="408" text-anchor="middle" dominant-baseline="central" fill="#085041">&#8942;</text>
+
+    <rect x="642" y="440" width="180" height="36" rx="5" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="732" y="458" text-anchor="middle" dominant-baseline="central" fill="#085041">stage NR+1</text>
+  </g>
+
+  <text x="838" y="258" font-size="9.5" fill="#5F5E5A">own CE</text>
+  <text x="838" y="308" font-size="9.5" fill="#5F5E5A">own CE</text>
+  <text x="838" y="358" font-size="9.5" fill="#5F5E5A">own CE</text>
+  <text x="838" y="458" font-size="9.5" fill="#5F5E5A">own CE</text>
+
+  <text x="510" y="522" font-size="11" fill="#2C2C2A" font-weight="600">Consequence</text>
+  <text x="510" y="540" font-size="11" fill="#5F5E5A">The tail can stall while the head keeps loading, so long</text>
+  <text x="510" y="556" font-size="11" fill="#5F5E5A">as there is room ahead. Bubbles get squeezed out.</text>
+  <text x="510" y="576" font-size="11" fill="#993C1D">Cost: NR+2 counters + NR+2 comparators, and the</text>
+  <text x="510" y="592" font-size="11" fill="#993C1D">counters are a second source of truth that must be</text>
+  <text x="510" y="608" font-size="11" fill="#993C1D">kept in step with the valid vector.</text>
+
+  <!-- ==================================================================== -->
+  <!-- bottom line                                                          -->
+  <!-- ==================================================================== -->
+  <rect x="30" y="636" width="900" height="60" rx="8" fill="#F7FCFA" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="46" y="656" font-size="11.5" font-weight="600" fill="#085041">Which one?</text>
+  <text x="46" y="675" font-size="11" fill="#2C2C2A">In GCM the pipeline is fed by one scheduler and drained by one XOR &#8212; it runs full, and bubbles are rare. The extra</text>
+  <text x="46" y="690" font-size="11" fill="#2C2C2A">machinery of PER_STAGE buys almost nothing here, so GLOBAL is the default. PER_STAGE is kept for bursty producers.</text>
+</svg>

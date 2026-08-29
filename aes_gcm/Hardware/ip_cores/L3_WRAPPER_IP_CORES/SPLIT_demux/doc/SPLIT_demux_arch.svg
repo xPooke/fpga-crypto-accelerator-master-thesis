@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#b45309"/>
+    </marker>
+    <marker id="av" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="700" fill="#ffffff"/>
+  <text x="24" y="32" font-size="19" font-weight="700" fill="#0f172a">SPLIT_demux</text>
+  <text x="24" y="51" font-size="12" fill="#64748b">One contiguous input stream, cut into a bypass path and a re-aligned AAD || PT crypto path.</text>
+  <text x="24" y="67" font-size="11" fill="#94a3b8">AXIS byte order: lane 0 = TDATA[7:0] = first byte — so the LSB is drawn on the LEFT everywhere below.</text>
+
+  <!-- ================= 1 · INPUT ================= -->
+  <text x="24" y="100" font-size="13" font-weight="700" fill="#334155">1 · s_axis — segment boundaries fall mid-beat</text>
+  <text x="24" y="117" font-size="11" fill="#64748b">example: DATA_WIDTH = 128 (16 B / beat), BYPASS_BYTES = 50, AAD_BYTES = 20, PT = 40 (runtime)</text>
+
+  <g stroke="#94a3b8" stroke-width="1">
+    <line x1="70"  y1="128" x2="70"  y2="180"/>
+    <line x1="160" y1="128" x2="160" y2="180"/>
+    <line x1="250" y1="128" x2="250" y2="180"/>
+    <line x1="340" y1="128" x2="340" y2="180"/>
+    <line x1="430" y1="128" x2="430" y2="180"/>
+    <line x1="520" y1="128" x2="520" y2="180"/>
+    <line x1="610" y1="128" x2="610" y2="180"/>
+    <line x1="700" y1="128" x2="700" y2="180"/>
+  </g>
+
+  <rect x="70"     y="134" width="281.25" height="32" fill="#3b82f6" opacity="0.9"/>
+  <rect x="351.25" y="134" width="112.5"  height="32" fill="#10b981" opacity="0.9"/>
+  <rect x="463.75" y="134" width="225"    height="32" fill="#f59e0b" opacity="0.9"/>
+  <rect x="688.75" y="134" width="11.25"  height="32" fill="#e2e8f0"/>
+  <text x="210" y="155" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">BYPASS  50 B</text>
+  <text x="407" y="155" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">AAD 20</text>
+  <text x="576" y="155" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">PT  40 B  (ends on TLAST)</text>
+  <text x="712" y="155" font-size="10" fill="#94a3b8">pad</text>
+
+  <g font-size="10" fill="#64748b" text-anchor="middle">
+    <text x="115" y="194">b0</text>
+    <text x="205" y="194">b1</text>
+    <text x="295" y="194">b2</text>
+    <text x="385" y="194">b3</text>
+    <text x="475" y="194">b4</text>
+    <text x="565" y="194">b5</text>
+    <text x="655" y="194">b6 · TLAST</text>
+  </g>
+
+  <path d="M351.25,170 L351.25,176 L430,176 L430,170" stroke="#0f766e" stroke-width="1.4" fill="none"/>
+  <text x="391" y="216" font-size="10" font-weight="700" fill="#0f766e" text-anchor="middle">gap = 14 B</text>
+  <text x="391" y="228" font-size="10" fill="#0f766e" text-anchor="middle">AAD seed</text>
+
+  <path d="M463.75,170 L463.75,176 L520,176 L520,170" stroke="#b45309" stroke-width="1.4" fill="none"/>
+  <text x="492" y="244" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">gap = 10 B</text>
+  <text x="492" y="256" font-size="10" fill="#b45309" text-anchor="middle">PT seed</text>
+
+  <text x="570" y="220" font-size="11" fill="#475569">The tail of the straddling beat already holds the first</text>
+  <text x="570" y="234" font-size="11" fill="#475569">bytes of the next segment → it seeds the gearbox.</text>
+
+  <!-- ================= 2 · GEARBOX ================= -->
+  <line x1="24" y1="278" x2="876" y2="278" stroke="#e2e8f0"/>
+  <text x="24" y="300" font-size="13" font-weight="700" fill="#334155">2 · gearbox — every crypto beat is  carry ‖ input.low</text>
+
+  <text x="60"  y="322" font-size="11" font-weight="700" fill="#6d28d9">r_gearbox  (carry, LSB-aligned)</text>
+  <text x="470" y="322" font-size="11" font-weight="700" fill="#b45309">input beat  (16 B)</text>
+
+  <!-- new-carry feedback, routed clear of every label -->
+  <path d="M742,382 L742,400 L850,400 L850,334 L114,334 L114,352"
+        stroke="#8b5cf6" stroke-width="1.5" fill="none" stroke-dasharray="5 3" marker-end="url(#av)"/>
+  <text x="796" y="416" font-size="10" font-weight="700" fill="#6d28d9" text-anchor="middle">new carry</text>
+
+  <rect x="60" y="352" width="240" height="38" rx="3" fill="#f5f3ff" stroke="#8b5cf6"/>
+  <rect x="62" y="354" width="105" height="34" fill="#8b5cf6" opacity="0.9"/>
+  <text x="114" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">carry  g B</text>
+  <text x="235" y="376" font-size="10" fill="#a78bfa" text-anchor="middle">unused</text>
+
+  <rect x="470" y="352" width="330" height="38" rx="3" fill="#fffbeb" stroke="#f59e0b"/>
+  <rect x="472" y="354" width="215" height="34" fill="#fbbf24" opacity="0.9"/>
+  <rect x="687" y="354" width="111" height="34" fill="#b45309" opacity="0.85"/>
+  <text x="579" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">input.low  (16 − g) B</text>
+  <text x="742" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">input.high  g B</text>
+
+  <path d="M114,390 L114,438 L300,438 L300,468" stroke="#8b5cf6" stroke-width="1.8" fill="none" marker-end="url(#av)"/>
+  <path d="M579,390 L579,438 L517,438 L517,468" stroke="#b45309" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+  <text x="672" y="484" font-size="11" font-weight="700" fill="#334155">m_crypto beat</text>
+  <text x="672" y="499" font-size="10" fill="#64748b">starts at byte 0 of its own stream</text>
+  <rect x="240" y="470" width="420" height="38" rx="3" fill="#f8fafc" stroke="#334155"/>
+  <rect x="242" y="472" width="134" height="34" fill="#8b5cf6" opacity="0.9"/>
+  <rect x="376" y="472" width="282" height="34" fill="#fbbf24" opacity="0.9"/>
+  <text x="309" y="494" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">carry</text>
+  <text x="517" y="494" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">input.low</text>
+
+  <text x="60" y="540" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">COMBINE</tspan>  out = carry ‖ input.low  ·  carry′ = input.high — the normal beat, one input consumed.</text>
+  <text x="60" y="558" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">DRAIN</tspan>  last AAD beat, served from the gearbox alone (when carry ≥ AAD remainder) — s_axis_tready = 0.</text>
+  <text x="60" y="576" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">FLUSH</tspan>  PT tail that overflowed the last input beat, again from the gearbox alone — s_axis_tready = 0.</text>
+  <text x="60" y="596" font-size="10" fill="#94a3b8">g (the gap), the segment remainders and the DRAIN-vs-COMBINE choice are compile-time constants → the slices are fixed wiring.</text>
+
+  <!-- ================= 3 · OUTPUTS ================= -->
+  <line x1="24" y1="618" x2="876" y2="618" stroke="#e2e8f0"/>
+  <text x="24" y="640" font-size="13" font-weight="700" fill="#334155">3 · outputs — each stream restarts at byte 0, partial beats are marked by TKEEP</text>
+
+  <text x="152" y="676" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">m_bypass</text>
+  <g>
+    <rect x="162" y="660" width="52" height="22" fill="#3b82f6" opacity="0.9"/>
+    <rect x="218" y="660" width="52" height="22" fill="#3b82f6" opacity="0.9"/>
+    <rect x="274" y="660" width="52" height="22" fill="#3b82f6" opacity="0.9"/>
+    <rect x="330" y="660" width="52" height="22" fill="#e2e8f0"/>
+    <rect x="330" y="660" width="7"  height="22" fill="#3b82f6" opacity="0.9"/>
+    <text x="188" y="675" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="244" y="675" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="300" y="675" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="362" y="675" font-size="9" fill="#475569" text-anchor="middle">2 ᴸ</text>
+  </g>
+
+  <text x="492" y="676" font-size="11" font-weight="700" fill="#6d28d9" text-anchor="end">m_crypto</text>
+  <g>
+    <rect x="502" y="660" width="52" height="22" fill="#10b981" opacity="0.9"/>
+    <rect x="558" y="660" width="52" height="22" fill="#e2e8f0"/>
+    <rect x="558" y="660" width="13" height="22" fill="#10b981" opacity="0.9"/>
+    <rect x="614" y="660" width="52" height="22" fill="#f59e0b" opacity="0.9"/>
+    <rect x="670" y="660" width="52" height="22" fill="#f59e0b" opacity="0.9"/>
+    <rect x="726" y="660" width="52" height="22" fill="#e2e8f0"/>
+    <rect x="726" y="660" width="26" height="22" fill="#f59e0b" opacity="0.9"/>
+    <text x="528" y="675" font-size="9" fill="#fff" text-anchor="middle">AAD 16</text>
+    <text x="590" y="675" font-size="9" fill="#475569" text-anchor="middle">AAD 4</text>
+    <text x="640" y="675" font-size="9" fill="#fff" text-anchor="middle">PT 16</text>
+    <text x="696" y="675" font-size="9" fill="#fff" text-anchor="middle">PT 16</text>
+    <text x="758" y="675" font-size="9" fill="#475569" text-anchor="middle">PT 8 ᴸ</text>
+  </g>
+  <text x="800" y="675" font-size="9" fill="#94a3b8">ᴸ = TLAST</text>
+</svg>

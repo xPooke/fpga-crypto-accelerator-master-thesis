@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 790" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF"/>
+
+  <text x="30" y="26" font-size="15" font-weight="600" fill="#2C2C2A">ROUND_STYLE  —  how one AES round is built</text>
+  <text x="30" y="44" font-size="12" fill="#5F5E5A">Same aes_round entity, same 1-cycle latency, same result. What changes is which FPGA resource does the work.</text>
+
+  <line x1="480" y1="60" x2="480" y2="700" stroke="#D8D5CC" stroke-width="1" stroke-dasharray="6 4"/>
+
+  <!-- ==================================================================== -->
+  <!-- LEFT: BRAM                                                            -->
+  <!-- ==================================================================== -->
+  <rect x="30" y="70" width="420" height="34" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="240" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#085041">ROUND_STYLE = "BRAM"  &#8212;  T-tables</text>
+
+  <text x="30" y="126" font-size="11.5" fill="#5F5E5A">SubBytes + ShiftRows + MixColumns + AddRoundKey collapse</text>
+  <text x="30" y="142" font-size="11.5" fill="#5F5E5A">into a XOR of four 32-bit table reads. The round becomes</text>
+  <text x="30" y="158" font-size="11.5" fill="#5F5E5A">a memory lookup, not arithmetic &#8212; paid for in read ports.</text>
+
+  <!-- state in -->
+  <rect x="30" y="180" width="130" height="34" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="95" y="197" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#2C2C2A">i_state (128 b)</text>
+  <path d="M95 214 L95 236" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- shiftrows note -->
+  <rect x="30" y="238" width="410" height="30" rx="5" fill="#FDF6EE" stroke="#D85A30" stroke-width="0.8" stroke-dasharray="3 3"/>
+  <text x="235" y="253" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#993C1D">ShiftRows is free: it is just which 4 bytes each column reads</text>
+
+  <!-- 4 columns -->
+  <text x="30" y="290" font-size="11" font-weight="600" fill="#085041">4 &#215; aes_round_column</text>
+
+  <g font-size="10">
+    <rect x="30" y="300" width="96" height="96" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="78" y="316" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#085041">col 0</text>
+    <text x="78" y="333" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">bytes 0,5,10,15</text>
+    <text x="78" y="352" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">4 reads of T0</text>
+    <text x="78" y="368" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">(registered)</text>
+    <text x="78" y="386" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#5F5E5A">4 reads &#8594; 2 copies</text>
+
+    <rect x="136" y="300" width="96" height="96" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="184" y="316" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#085041">col 1</text>
+    <text x="184" y="333" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">bytes 4,9,14,3</text>
+    <text x="184" y="386" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#5F5E5A">4 reads &#8594; 2 copies</text>
+
+    <rect x="242" y="300" width="96" height="96" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="290" y="316" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#085041">col 2</text>
+    <text x="290" y="333" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">bytes 8,13,2,7</text>
+    <text x="290" y="386" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#5F5E5A">4 reads &#8594; 2 copies</text>
+
+    <rect x="348" y="300" width="96" height="96" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="396" y="316" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#085041">col 3</text>
+    <text x="396" y="333" text-anchor="middle" dominant-baseline="central" fill="#0F6E56">bytes 12,1,6,11</text>
+    <text x="396" y="386" text-anchor="middle" dominant-baseline="central" font-size="9" fill="#5F5E5A">4 reads &#8594; 2 copies</text>
+  </g>
+
+  <!-- column outputs converge on one XOR -->
+  <g fill="none" stroke="#2C2C2A" stroke-width="1.2">
+    <path d="M78 396 L78 416"/>
+    <path d="M184 396 L184 416"/>
+    <path d="M290 396 L290 416"/>
+    <path d="M396 396 L396 416"/>
+    <path d="M78 416 L396 416"/>
+  </g>
+  <path d="M235 416 L235 424" fill="none" stroke="#2C2C2A" stroke-width="1.5"/>
+  <circle cx="235" cy="440" r="16" fill="#FFFFFF" stroke="#2C2C2A" stroke-width="1.5"/>
+  <text x="235" y="441" text-anchor="middle" dominant-baseline="central" font-size="16" fill="#2C2C2A">&#8853;</text>
+  <text x="258" y="437" font-size="10" fill="#5F5E5A">the round key is already</text>
+  <text x="258" y="450" font-size="10" fill="#5F5E5A">folded into this XOR</text>
+
+  <path d="M235 456 L235 478" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <rect x="170" y="480" width="130" height="34" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="235" y="497" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#2C2C2A">o_state (128 b)</text>
+
+  <!-- T0-only trick: what it does and does NOT buy -->
+  <rect x="30" y="528" width="410" height="88" rx="6" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+  <text x="46" y="546" font-size="11" font-weight="600" fill="#993C1D">The T0-only trick &#8212; and what it does NOT buy</text>
+  <text x="46" y="564" font-size="10.5" fill="#993C1D">Only T0 is stored; T1/T2/T3 are the same table rotated, so they</text>
+  <text x="46" y="579" font-size="10.5" fill="#993C1D">are re-wired off the registered T0 reads &#8212; zero LUTs, pure wires.</text>
+  <text x="46" y="597" font-size="10.5" font-weight="600" fill="#993C1D">It saves no BRAM. Instance count follows READ PORTS, not content:</text>
+  <text x="46" y="611" font-size="10.5" fill="#993C1D">4 tables &#215; 4 reads = 2 copies each = 8.  T0 &#215; 16 reads = 8 copies. Same.</text>
+
+  <text x="30" y="640" font-size="11" font-weight="600" fill="#2C2C2A">Costs</text>
+  <text x="30" y="656" font-size="11" fill="#993C1D">16 concurrent 32-bit reads per round &#8212; that is the real driver.</text>
+  <text x="30" y="670" font-size="11" fill="#993C1D">BRAM clk-to-Q is slow: this is why stage NR exists, to keep the</text>
+  <text x="30" y="684" font-size="11" fill="#993C1D">BRAM output off the last round's LUT path.</text>
+
+  <!-- ==================================================================== -->
+  <!-- RIGHT: LUT                                                            -->
+  <!-- ==================================================================== -->
+  <rect x="510" y="70" width="420" height="34" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="720" y="88" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="#085041">ROUND_STYLE = "LUT"  &#8212;  plain logic</text>
+
+  <text x="510" y="126" font-size="11.5" fill="#5F5E5A">The textbook round, written out as four steps and registered</text>
+  <text x="510" y="142" font-size="11.5" fill="#5F5E5A">once at the end. Everything lands in fabric: SBOX becomes</text>
+  <text x="510" y="158" font-size="11.5" fill="#5F5E5A">distributed LUT ROM, MixColumns becomes XOR trees.</text>
+
+  <rect x="510" y="180" width="130" height="34" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="575" y="197" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#2C2C2A">i_state (128 b)</text>
+  <path d="M575 214 L575 240" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <g font-size="11">
+    <rect x="510" y="242" width="240" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="630" y="256" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#085041">SubBytes</text>
+    <text x="630" y="271" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#0F6E56">16 &#215; SBOX, distributed LUT ROM</text>
+    <path d="M630 282 L630 300" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+    <rect x="510" y="302" width="240" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="630" y="316" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#085041">ShiftRows</text>
+    <text x="630" y="331" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#0F6E56">free &#8212; just wires</text>
+    <path d="M630 342 L630 360" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+    <rect x="510" y="362" width="240" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="630" y="376" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#085041">MixColumns</text>
+    <text x="630" y="391" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#0F6E56">xtime + XOR trees &#8212; the LUT hog</text>
+    <path d="M630 402 L630 420" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+    <rect x="510" y="422" width="240" height="40" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="630" y="436" text-anchor="middle" dominant-baseline="central" font-weight="600" fill="#085041">AddRoundKey</text>
+    <text x="630" y="451" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#0F6E56">128-bit XOR</text>
+  </g>
+
+  <!-- the single register -->
+  <path d="M630 462 L630 486" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <rect x="510" y="488" width="240" height="36" rx="6" fill="#FDF6EE" stroke="#D85A30" stroke-width="1"/>
+  <text x="630" y="506" text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="600" fill="#993C1D">one register at the end (i_clk_en)</text>
+
+  <path d="M630 524 L630 548" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <rect x="565" y="550" width="130" height="34" rx="5" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="630" y="567" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#2C2C2A">o_state (128 b)</text>
+
+  <text x="782" y="330" font-size="10.5" fill="#993C1D">All four steps are</text>
+  <text x="782" y="346" font-size="10.5" fill="#993C1D">combinational, in</text>
+  <text x="782" y="362" font-size="10.5" fill="#993C1D">series, inside ONE</text>
+  <text x="782" y="378" font-size="10.5" fill="#993C1D">clock period.</text>
+  <text x="782" y="400" font-size="10.5" fill="#993C1D">That series is the</text>
+  <text x="782" y="416" font-size="10.5" fill="#993C1D">critical path.</text>
+
+  <text x="510" y="640" font-size="11" font-weight="600" fill="#2C2C2A">Costs</text>
+  <text x="510" y="656" font-size="11" fill="#0F6E56">0 BRAM. Frees the block RAM for other logic.</text>
+  <text x="510" y="670" font-size="11" fill="#993C1D">Deep LUT chain per round &#8212; the deciding factor for fmax.</text>
+  <text x="510" y="684" font-size="11" fill="#993C1D">Costs a lot of fabric, and the pipelined build has NR of them.</text>
+
+  <!-- ==================================================================== -->
+  <rect x="30" y="716" width="900" height="56" rx="8" fill="#F7FCFA" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="46" y="736" font-size="11.5" font-weight="600" fill="#085041">Applies to the MAIN rounds only</text>
+  <text x="46" y="754" font-size="11" fill="#2C2C2A">The last round has no MixColumns, so there is nothing to fuse into a T-table &#8212; it is inline LUT in both modes. It trades BRAM against fabric and fmax; both give the same ciphertext.</text>
+</svg>

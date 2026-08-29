@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 700" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrowhead" viewBox="0 0 10 10" refX="8" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke"
+            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF"/>
+
+  <text x="30" y="26" font-size="15" font-weight="600" fill="#2C2C2A">WRAPPER_KIND = "MULTICORE"  —  AES_multicore_wrapper</text>
+  <text x="30" y="44" font-size="12" fill="#5F5E5A">NUM_CORES rolled cores in round-robin. Each core: NR clocks / block. Aggregate: NUM_CORES / NR blocks per clock.</text>
+
+  <!-- ================= left column ================= -->
+  <rect x="30" y="70" width="140" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="100" y="88" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#2C2C2A">KEY / NONCE</text>
+  <text x="100" y="105" text-anchor="middle" dominant-baseline="central" font-size="11" fill="#444441">i_key, i_nonce</text>
+
+  <rect x="30" y="146" width="140" height="60" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="100" y="164" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#085041">KeyExpansion</text>
+  <text x="100" y="181" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">on the fly, in lockstep</text>
+  <text x="100" y="195" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">with the cores</text>
+  <path d="M100 120 L100 146" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <rect x="30" y="240" width="140" height="76" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="100" y="258" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#085041">dispatcher</text>
+  <text x="100" y="276" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">r_counter_start</text>
+  <text x="100" y="292" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">picks the next free</text>
+  <text x="100" y="307" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">core, round-robin</text>
+
+  <text x="30" y="352" font-size="11" fill="#5F5E5A">Same block order as</text>
+  <text x="30" y="367" font-size="11" fill="#5F5E5A">UNROLLED:</text>
+  <text x="30" y="386" font-size="11" fill="#993C1D">H&#160;=&#160;E(0), E(J0),</text>
+  <text x="30" y="401" font-size="11" fill="#993C1D">E(J0+1), E(J0+2) &#8230;</text>
+  <text x="30" y="424" font-size="11" fill="#5F5E5A">CT keystream is</text>
+  <text x="30" y="439" font-size="11" fill="#5F5E5A">dispatched eagerly &#8212;</text>
+  <text x="30" y="454" font-size="11" fill="#5F5E5A">cores never wait on PT.</text>
+
+  <!-- shared round-key bus -->
+  <path d="M170 176 L196 176" fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <path d="M196 176 L196 470" fill="none" stroke="#D85A30" stroke-width="2"/>
+  <text x="204" y="506" font-size="10.5" font-weight="600" fill="#993C1D">K_i shared by every core</text>
+
+  <!-- ================= the cores ================= -->
+  <rect x="236" y="80" width="270" height="400" rx="10" fill="#F7FCFA" stroke="#0F6E56" stroke-width="1" stroke-dasharray="5 4"/>
+  <text x="371" y="98" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="600" fill="#085041">NUM_CORES &#215; aes_enc_rolled</text>
+
+  <g>
+    <rect x="256" y="120" width="230" height="56" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="371" y="139" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">core 0</text>
+    <text x="371" y="157" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">one aes_round, reused NR&#8722;1&#215;</text>
+
+    <rect x="256" y="196" width="230" height="56" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="371" y="215" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">core 1</text>
+    <text x="371" y="233" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">NR clocks per block</text>
+
+    <rect x="256" y="272" width="230" height="56" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="371" y="291" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">core 2</text>
+    <text x="371" y="309" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">last round: inline LUT</text>
+
+    <text x="371" y="348" text-anchor="middle" dominant-baseline="central" font-size="15" fill="#0F6E56">&#8942;</text>
+
+    <rect x="256" y="368" width="230" height="56" rx="6" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="371" y="387" text-anchor="middle" dominant-baseline="central" font-size="12.5" font-weight="500" fill="#085041">core NUM_CORES&#8722;1</text>
+    <text x="371" y="405" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">all cores run concurrently</text>
+  </g>
+
+  <text x="371" y="452" text-anchor="middle" font-size="10.5" fill="#5F5E5A">Staggered by one dispatch each, so their</text>
+  <text x="371" y="466" text-anchor="middle" font-size="10.5" fill="#5F5E5A">finish times are spread across the NR window.</text>
+
+  <!-- dispatcher -> cores -->
+  <g fill="none" stroke="#2C2C2A" stroke-width="1.5">
+    <path d="M170 262 L214 262 L214 148 L254 148" marker-end="url(#arrowhead)"/>
+    <path d="M214 224 L254 224" marker-end="url(#arrowhead)"/>
+    <path d="M214 300 L254 300" marker-end="url(#arrowhead)"/>
+    <path d="M214 396 L254 396" marker-end="url(#arrowhead)"/>
+    <path d="M214 262 L214 396" />
+  </g>
+  <text x="222" y="340" font-size="10" fill="#5F5E5A">start_enc</text>
+  <text x="222" y="352" font-size="10" fill="#5F5E5A">(1-hot)</text>
+
+  <!-- round keys into cores -->
+  <g fill="none" stroke="#D85A30" stroke-width="1.2" stroke-dasharray="3 3">
+    <path d="M196 166 L254 166" marker-end="url(#arrowhead)"/>
+    <path d="M196 242 L254 242" marker-end="url(#arrowhead)"/>
+    <path d="M196 318 L254 318" marker-end="url(#arrowhead)"/>
+    <path d="M196 414 L254 414" marker-end="url(#arrowhead)"/>
+  </g>
+
+  <!-- ================= release ================= -->
+  <g fill="none" stroke="#2C2C2A" stroke-width="1.5">
+    <path d="M486 148 L530 148" />
+    <path d="M486 224 L530 224" />
+    <path d="M486 300 L530 300" />
+    <path d="M486 396 L530 396" />
+    <path d="M530 148 L530 396" />
+  </g>
+
+  <rect x="542" y="238" width="150" height="76" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="617" y="256" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#085041">release</text>
+  <text x="617" y="274" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">r_counter_output</text>
+  <text x="617" y="290" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">drains cores strictly</text>
+  <text x="617" y="305" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">in dispatch order</text>
+  <path d="M530 276 L540 276" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <text x="542" y="336" font-size="10.5" fill="#993C1D">Order matters: block i must</text>
+  <text x="542" y="350" font-size="10.5" fill="#993C1D">meet PT beat i. A core that</text>
+  <text x="542" y="364" font-size="10.5" fill="#993C1D">finishes early simply waits.</text>
+
+  <!-- role demux -->
+  <rect x="542" y="146" width="150" height="60" rx="8" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+  <text x="617" y="164" text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="500" fill="#085041">role demux</text>
+  <text x="617" y="182" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">first block is H,</text>
+  <text x="617" y="197" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#0F6E56">then E(J0), then CT</text>
+  <path d="M617 236 L617 208" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- H / EK out -->
+  <path d="M692 160 L760 160 L760 148 L806 148" fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowhead)"/>
+  <path d="M692 192 L740 192 L740 222 L806 222" fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowhead)"/>
+
+  <rect x="808" y="124" width="86" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="851" y="141" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#2C2C2A">o_H</text>
+  <text x="851" y="157" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#444441">= E(0)</text>
+
+  <rect x="808" y="198" width="86" height="48" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="851" y="215" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#2C2C2A">o_E_k</text>
+  <text x="851" y="231" text-anchor="middle" dominant-baseline="central" font-size="10" fill="#444441">= E(J0)</text>
+
+  <!-- keystream -> XOR -->
+  <path d="M692 276 L740 276 L740 398 L758 398" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <text x="700" y="392" font-size="10.5" fill="#5F5E5A">keystream</text>
+
+  <circle cx="777" cy="398" r="17" fill="#FFFFFF" stroke="#2C2C2A" stroke-width="1.5"/>
+  <text x="777" y="399" text-anchor="middle" dominant-baseline="central" font-size="17" fill="#2C2C2A">&#8853;</text>
+
+  <!-- PT in -->
+  <rect x="600" y="470" width="120" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="660" y="487" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="500" fill="#2C2C2A">S_AXIS_IN</text>
+  <text x="660" y="504" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#444441">PT (or CT on decrypt)</text>
+  <path d="M720 495 L777 495 L777 417" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+
+  <!-- CT out -->
+  <path d="M794 398 L806 398" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+  <rect x="808" y="374" width="88" height="50" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+  <text x="852" y="391" text-anchor="middle" dominant-baseline="central" font-size="11.5" font-weight="500" fill="#2C2C2A">M_AXIS_OUT</text>
+  <text x="852" y="408" text-anchor="middle" dominant-baseline="central" font-size="10.5" fill="#444441">CT (or PT)</text>
+
+  <!-- ================= legend ================= -->
+  <g font-size="11.5">
+    <rect x="30" y="620" width="16" height="16" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+    <text x="54" y="628" dominant-baseline="central" fill="#2C2C2A">Custom RTL</text>
+
+    <rect x="150" y="620" width="16" height="16" rx="4" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+    <text x="174" y="628" dominant-baseline="central" fill="#2C2C2A">Top-level port</text>
+
+    <path d="M290 628 L332 628" fill="none" stroke="#2C2C2A" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+    <text x="340" y="628" dominant-baseline="central" fill="#2C2C2A">Data path</text>
+
+    <path d="M430 628 L472 628" fill="none" stroke="#D85A30" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrowhead)"/>
+    <text x="480" y="628" dominant-baseline="central" fill="#2C2C2A">Keys / side-band</text>
+  </g>
+</svg>

@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#dc2626"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="700" fill="#ffffff"/>
+  <text x="24" y="32" font-size="19" font-weight="700" fill="#0f172a">ICV_realign</text>
+  <text x="24" y="51" font-size="12" fill="#64748b">Decrypt-path adapter: puts the tag back on a beat of its own, which is what gcm_dec_glue requires.</text>
+  <text x="24" y="67" font-size="11" fill="#94a3b8">AXIS byte order: lane 0 = TDATA[7:0] = first byte — the LSB is drawn on the LEFT everywhere below.</text>
+
+  <!-- ================= 1 · THE PROBLEM ================= -->
+  <text x="24" y="100" font-size="13" font-weight="700" fill="#334155">1 · the mismatch</text>
+  <text x="24" y="117" font-size="11" fill="#64748b">example: DATA_WIDTH = 128 (16 B / beat), AAD_BEATS = 2, CT = 40 B, ICV = 16 B</text>
+
+  <text x="140" y="152" font-size="11" font-weight="700" fill="#334155" text-anchor="end">s_axis</text>
+  <text x="140" y="166" font-size="9"  fill="#94a3b8" text-anchor="end">from SPLIT</text>
+  <g>
+    <rect x="150" y="136" width="60" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="214" y="136" width="60" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="278" y="136" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="342" y="136" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="406" y="136" width="30" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="436" y="136" width="30" height="24" fill="#dc2626" opacity="0.9"/>
+    <rect x="470" y="136" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="470" y="136" width="30" height="24" fill="#dc2626" opacity="0.9"/>
+    <text x="180" y="153" font-size="9" fill="#fff" text-anchor="middle">AAD 16</text>
+    <text x="244" y="153" font-size="9" fill="#fff" text-anchor="middle">AAD 16</text>
+    <text x="308" y="153" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="372" y="153" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="421" y="153" font-size="8" fill="#fff" text-anchor="middle">CT 8</text>
+    <text x="451" y="153" font-size="8" fill="#fff" text-anchor="middle">ICV</text>
+    <text x="485" y="153" font-size="8" fill="#fff" text-anchor="middle">ICV</text>
+    <text x="515" y="153" font-size="8" fill="#475569" text-anchor="middle">ᴸ</text>
+  </g>
+  <text x="546" y="147" font-size="10" fill="#dc2626">the 16-byte tag straddles two beats —</text>
+  <text x="546" y="160" font-size="10" fill="#dc2626">8 bytes here, 8 bytes there</text>
+
+  <text x="140" y="212" font-size="11" font-weight="700" fill="#334155" text-anchor="end">m_axis</text>
+  <text x="140" y="226" font-size="9"  fill="#94a3b8" text-anchor="end">to DEC glue</text>
+  <g>
+    <rect x="150" y="196" width="60" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="214" y="196" width="60" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="278" y="196" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="342" y="196" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="406" y="196" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="406" y="196" width="30" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="470" y="196" width="60" height="24" fill="#dc2626" opacity="0.9"/>
+    <text x="180" y="213" font-size="9" fill="#fff" text-anchor="middle">AAD 16</text>
+    <text x="244" y="213" font-size="9" fill="#fff" text-anchor="middle">AAD 16</text>
+    <text x="308" y="213" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="372" y="213" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="436" y="213" font-size="9" fill="#475569" text-anchor="middle">CT 8</text>
+    <text x="500" y="213" font-size="9" fill="#fff" text-anchor="middle">ICV 16 ᴸ</text>
+  </g>
+  <text x="546" y="213" font-size="10" fill="#059669">the tag is whole, alone, and carries TLAST</text>
+  <text x="150" y="244" font-size="11" fill="#475569">AXIS_DEMUX_dec insists the TLAST beat <tspan font-weight="700">be</tspan> the ICV. SPLIT packs CT and ICV contiguously, so it never is. This core is the bridge.</text>
+
+  <!-- ================= 2 · LOOK-BEHIND ================= -->
+  <line x1="24" y1="266" x2="876" y2="266" stroke="#e2e8f0"/>
+  <text x="24" y="288" font-size="13" font-weight="700" fill="#334155">2 · one beat of look-behind — because only TLAST reveals where the tag begins</text>
+  <text x="24" y="306" font-size="11" fill="#64748b">While streaming, the core is always one beat behind: it emits r_prev and loads the beat it just accepted.</text>
+  <text x="24" y="322" font-size="11" fill="#64748b">When TLAST arrives with k valid bytes, both answers fall out of r_prev and r_last at once.</text>
+
+  <!-- registers -->
+  <text x="60" y="344" font-size="11" font-weight="700" fill="#334155">r_prev  (the held beat)</text>
+  <rect x="60" y="352" width="300" height="38" rx="3" fill="#fffbeb" stroke="#f59e0b"/>
+  <rect x="62" y="354" width="148" height="34" fill="#fbbf24" opacity="0.9"/>
+  <rect x="210" y="354" width="148" height="34" fill="#dc2626" opacity="0.9"/>
+  <text x="136" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">CT tail — k B</text>
+  <text x="284" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">ICV, low part</text>
+
+  <text x="480" y="344" font-size="11" font-weight="700" fill="#334155">r_last  (the TLAST beat, k valid bytes)</text>
+  <rect x="480" y="352" width="300" height="38" rx="3" fill="#fef2f2" stroke="#dc2626"/>
+  <rect x="482" y="354" width="148" height="34" fill="#dc2626" opacity="0.9"/>
+  <text x="556" y="376" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">ICV, high part</text>
+  <text x="706" y="376" font-size="9" fill="#f87171" text-anchor="middle">masked to 0</text>
+
+  <!-- arrows into outputs -->
+  <path d="M136,390 L136,428 L136,452" stroke="#b45309" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <path d="M284,390 L284,420 L560,420 L560,452" stroke="#dc2626" stroke-width="1.8" fill="none" marker-end="url(#ar)"/>
+  <path d="M556,390 L556,404 L800,404 L800,436 L716,436 L716,452" stroke="#dc2626" stroke-width="1.8" fill="none" marker-end="url(#ar)"/>
+
+  <!-- outputs -->
+  <text x="136" y="478" font-size="10" font-weight="700" fill="#334155" text-anchor="middle">S_CTTAIL beat</text>
+  <rect x="60" y="486" width="152" height="34" rx="3" fill="#f8fafc" stroke="#334155"/>
+  <rect x="62" y="488" width="74" height="30" fill="#fbbf24" opacity="0.9"/>
+  <text x="99"  y="508" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">CT tail</text>
+  <text x="174" y="508" font-size="9" fill="#94a3b8" text-anchor="middle">TKEEP = k</text>
+
+  <text x="640" y="478" font-size="10" font-weight="700" fill="#334155" text-anchor="middle">S_ICV beat — full, TLAST</text>
+  <rect x="486" y="486" width="308" height="34" rx="3" fill="#f8fafc" stroke="#334155"/>
+  <rect x="488" y="488" width="150" height="30" fill="#dc2626" opacity="0.9"/>
+  <rect x="638" y="488" width="154" height="30" fill="#dc2626" opacity="0.75"/>
+  <text x="563" y="508" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">r_prev &gt;&gt; k B</text>
+  <text x="715" y="508" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">r_last &lt;&lt; (bus − k) B</text>
+
+  <text x="60" y="548" font-size="11" fill="#475569">CT tail = r_prev[low k bytes]</text>
+  <text x="300" y="548" font-size="11" fill="#475569">ICV = ( r_prev &gt;&gt; k·8 )  OR  ( mask_bytes(r_last) &lt;&lt; (bus − k)·8 )</text>
+  <text x="60" y="566" font-size="10" fill="#94a3b8">k = keep_bytes(r_last_keep). If the TLAST beat happens to be full (k = bus) the shifts degenerate to 0 and the tag is simply r_last.</text>
+
+  <!-- ================= 3 · FSM ================= -->
+  <line x1="24" y1="588" x2="876" y2="588" stroke="#e2e8f0"/>
+  <text x="24" y="610" font-size="13" font-weight="700" fill="#334155">3 · FSM</text>
+
+  <g font-size="10" font-weight="700" text-anchor="middle">
+    <rect x="60"  y="628" width="86" height="30" rx="15" fill="#10b981"/>
+    <text x="103" y="648" fill="#fff">S_AAD</text>
+    <rect x="196" y="628" width="90" height="30" rx="15" fill="#64748b"/>
+    <text x="241" y="648" fill="#fff">S_PRIME</text>
+    <rect x="336" y="628" width="100" height="30" rx="15" fill="#f59e0b"/>
+    <text x="386" y="648" fill="#fff">S_STREAM</text>
+    <rect x="486" y="628" width="96" height="30" rx="15" fill="#b45309"/>
+    <text x="534" y="648" fill="#fff">S_CTTAIL</text>
+    <rect x="632" y="628" width="80" height="30" rx="15" fill="#dc2626"/>
+    <text x="672" y="648" fill="#fff">S_ICV</text>
+  </g>
+  <g stroke="#334155" stroke-width="1.4" fill="none">
+    <line x1="146" y1="643" x2="194" y2="643" marker-end="url(#a)"/>
+    <line x1="286" y1="643" x2="334" y2="643" marker-end="url(#a)"/>
+    <line x1="436" y1="643" x2="484" y2="643" marker-end="url(#a)"/>
+    <line x1="582" y1="643" x2="630" y2="643" marker-end="url(#a)"/>
+  </g>
+  <text x="103" y="676" font-size="9" fill="#64748b" text-anchor="middle">pass AAD through</text>
+  <text x="241" y="676" font-size="9" fill="#64748b" text-anchor="middle">swallow 1st beat</text>
+  <text x="386" y="676" font-size="9" fill="#64748b" text-anchor="middle">emit r_prev, slide</text>
+  <text x="534" y="676" font-size="9" fill="#64748b" text-anchor="middle">partial CT beat</text>
+  <text x="672" y="676" font-size="9" fill="#64748b" text-anchor="middle">the tag + TLAST</text>
+  <text x="470" y="620" font-size="9" fill="#94a3b8" text-anchor="middle">TLAST accepted (absorbed, no output)</text>
+  <text x="876" y="618" font-size="9" fill="#94a3b8" text-anchor="end">AAD_BEATS = 0 starts in S_PRIME.</text>
+  <text x="876" y="631" font-size="9" fill="#94a3b8" text-anchor="end">CT = 0 jumps S_PRIME → S_ICV.</text>
+</svg>

@@ -1,0 +1,3 @@
+# This file is automatically written.  Do not modify.
+proc gen_USERPARAMETER_FLOW_STYLE_ENABLEMENT {WRAPPER_KIND } {expr [string equal $WRAPPER_KIND "UNROLLED"]}
+proc gen_USERPARAMETER_NUM_CORES_ENABLEMENT {WRAPPER_KIND } {expr [string equal $WRAPPER_KIND "MULTICORE"]}

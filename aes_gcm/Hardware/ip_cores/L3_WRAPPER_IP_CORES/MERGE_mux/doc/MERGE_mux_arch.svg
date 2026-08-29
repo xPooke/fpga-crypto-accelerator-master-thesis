@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 734" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <marker id="av" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#8b5cf6"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="734" fill="#ffffff"/>
+  <text x="24" y="32" font-size="19" font-weight="700" fill="#0f172a">MERGE_mux</text>
+  <text x="24" y="51" font-size="12" fill="#64748b">Two AXIS slaves re-assembled into one contiguous packet. A byte packer absorbs every partial beat, so only the final output beat is partial.</text>
+  <text x="24" y="67" font-size="11" fill="#94a3b8">AXIS byte order: lane 0 = TDATA[7:0] = first byte — the LSB is drawn on the LEFT everywhere below.</text>
+
+  <!-- ================= 1 · INPUTS ================= -->
+  <text x="24" y="100" font-size="13" font-weight="700" fill="#334155">1 · two inputs — each one ends on its own TLAST, and there is no length generic</text>
+  <text x="24" y="117" font-size="11" fill="#64748b">example: DATA_WIDTH = 128 (16 B / beat), bypass = 50 B, AAD = 15 B, CT = 69 B, ICV = 16 B</text>
+
+  <text x="140" y="150" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="end">s_bypass</text>
+  <g>
+    <rect x="150" y="134" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="214" y="134" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="278" y="134" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="342" y="134" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="342" y="134" width="8"  height="24" fill="#3b82f6" opacity="0.9"/>
+    <text x="180" y="151" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="244" y="151" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="308" y="151" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="378" y="151" font-size="9" fill="#475569" text-anchor="middle">2 ᴸ</text>
+  </g>
+  <text x="420" y="151" font-size="10" fill="#94a3b8">TLAST ends the header → FSM switches to the crypto slave</text>
+
+  <text x="140" y="190" font-size="11" font-weight="700" fill="#6d28d9" text-anchor="end">s_crypto</text>
+  <g>
+    <rect x="150" y="174" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="150" y="174" width="56" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="214" y="174" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="278" y="174" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="342" y="174" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="406" y="174" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="470" y="174" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="470" y="174" width="19" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="534" y="174" width="60" height="24" fill="#ef4444" opacity="0.9"/>
+    <text x="180" y="191" font-size="9" fill="#fff" text-anchor="middle">AAD 15</text>
+    <text x="244" y="191" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="308" y="191" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="372" y="191" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="436" y="191" font-size="9" fill="#fff" text-anchor="middle">CT 16</text>
+    <text x="500" y="191" font-size="9" fill="#475569" text-anchor="middle">CT 5</text>
+    <text x="564" y="191" font-size="9" fill="#fff" text-anchor="middle">ICV 16 ᴸ</text>
+  </g>
+  <text x="612" y="191" font-size="10" fill="#94a3b8">ᴸ = TLAST</text>
+  <text x="150" y="216" font-size="11" fill="#475569">AAD, CT and ICV each end on a partial beat marked by TKEEP — the packer handles all three, so they need no states of their own.</text>
+
+  <!-- ================= 2 · PACKER ================= -->
+  <line x1="24" y1="240" x2="876" y2="240" stroke="#e2e8f0"/>
+  <text x="24" y="262" font-size="13" font-weight="700" fill="#334155">2 · the packer — one barrel shifter, one carry register</text>
+  <text x="24" y="280" font-size="11" fill="#64748b">w_merged = carry  OR  ( mask_bytes(input, TKEEP) &lt;&lt; n·8 )   into a 2 × DATA_WIDTH working vector</text>
+
+  <!-- gearbox -->
+  <text x="60" y="312" font-size="11" font-weight="700" fill="#6d28d9">r_gearbox + r_gb_count = n</text>
+  <rect x="60" y="320" width="200" height="36" rx="3" fill="#f5f3ff" stroke="#8b5cf6"/>
+  <rect x="62" y="322" width="70" height="32" fill="#8b5cf6" opacity="0.9"/>
+  <text x="97"  y="343" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">carry n B</text>
+  <text x="200" y="343" font-size="9" fill="#a78bfa" text-anchor="middle">unused</text>
+
+  <!-- input beat -->
+  <text x="380" y="312" font-size="11" font-weight="700" fill="#b45309">input beat — k valid bytes (TKEEP)</text>
+  <rect x="380" y="320" width="250" height="36" rx="3" fill="#fffbeb" stroke="#f59e0b"/>
+  <rect x="382" y="322" width="160" height="32" fill="#fbbf24" opacity="0.9"/>
+  <text x="462" y="343" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">valid k B</text>
+  <text x="586" y="343" font-size="9" fill="#d97706" text-anchor="middle">masked to 0</text>
+
+  <!-- arrows down into the work vector -->
+  <path d="M97,356 L97,420 L97,444" stroke="#8b5cf6" stroke-width="1.8" fill="none" marker-end="url(#av)"/>
+  <path d="M462,356 L462,400 L212,400 L212,444" stroke="#b45309" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <text x="300" y="394" font-size="10" font-weight="700" fill="#b45309" text-anchor="middle">shift left by n bytes</text>
+
+  <!-- work vector -->
+  <rect x="60" y="450" width="760" height="42" rx="3" fill="#f8fafc" stroke="#334155"/>
+  <line x1="440" y1="450" x2="440" y2="492" stroke="#334155" stroke-width="2"/>
+  <rect x="62"  y="452" width="70"  height="38" fill="#8b5cf6" opacity="0.9"/>
+  <rect x="132" y="452" width="330" height="38" fill="#fbbf24" opacity="0.9"/>
+  <text x="97"  y="476" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">carry</text>
+  <text x="290" y="476" font-size="9" font-weight="700" fill="#fff" text-anchor="middle">input, shifted up by n</text>
+  <text x="640" y="476" font-size="10" fill="#94a3b8" text-anchor="middle">zeros</text>
+
+  <text x="250" y="512" font-size="11" font-weight="700" fill="#334155" text-anchor="middle">low DATA_WIDTH → m_axis beat</text>
+  <text x="630" y="512" font-size="11" font-weight="700" fill="#6d28d9" text-anchor="middle">high DATA_WIDTH → new carry</text>
+  <text x="440" y="530" font-size="10" fill="#94a3b8" text-anchor="middle">whatever crosses this line is what is left over</text>
+
+  <text x="60" y="558" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">EMIT</tspan>   n + k ≥ bus — the low half is a full output beat; the overflow becomes the new carry. Coupled to m_axis_tready.</text>
+  <text x="60" y="576" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">ABSORB</tspan>  n + k &lt; bus — nothing crosses the line, so no output beat; the input is accepted anyway and everything stays as carry.</text>
+  <text x="60" y="594" font-size="11" fill="#475569"><tspan font-weight="700" fill="#334155">FLUSH</tspan>   after the crypto TLAST overflowed a beat: emit the leftover carry alone, with TLAST and a partial TKEEP.</text>
+
+  <!-- ================= 3 · OUTPUT ================= -->
+  <line x1="24" y1="616" x2="876" y2="616" stroke="#e2e8f0"/>
+  <text x="24" y="638" font-size="13" font-weight="700" fill="#334155">3 · m_axis — one contiguous packet, only the last beat is partial</text>
+
+  <text x="140" y="678" font-size="11" font-weight="700" fill="#334155" text-anchor="end">m_axis</text>
+  <g>
+    <rect x="150" y="660" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="214" y="660" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="278" y="660" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="342" y="660" width="60" height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="342" y="660" width="8"  height="24" fill="#3b82f6" opacity="0.9"/>
+    <rect x="350" y="660" width="52" height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="406" y="660" width="5"  height="24" fill="#10b981" opacity="0.9"/>
+    <rect x="411" y="660" width="55" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="470" y="660" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="534" y="660" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="598" y="660" width="60" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="662" y="660" width="23" height="24" fill="#f59e0b" opacity="0.9"/>
+    <rect x="685" y="660" width="37" height="24" fill="#ef4444" opacity="0.9"/>
+    <rect x="726" y="660" width="60" height="24" fill="#e2e8f0"/>
+    <rect x="726" y="660" width="23" height="24" fill="#ef4444" opacity="0.9"/>
+    <text x="180" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="244" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="308" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="372" y="677" font-size="9" fill="#fff" text-anchor="middle">2+14</text>
+    <text x="436" y="677" font-size="9" fill="#fff" text-anchor="middle">1+15</text>
+    <text x="500" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="564" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="628" y="677" font-size="9" fill="#fff" text-anchor="middle">16</text>
+    <text x="692" y="677" font-size="9" fill="#fff" text-anchor="middle">6+10</text>
+    <text x="756" y="677" font-size="9" fill="#475569" text-anchor="middle">6 ᴸ</text>
+  </g>
+  <text x="150" y="702" font-size="10" fill="#94a3b8">150 B = 9 full beats + a 6-byte FLUSH tail. A segment boundary lands inside a beat: 2 bypass ‖ 14 AAD, then 1 AAD ‖ 15 CT, then 6 CT ‖ 10 ICV.</text>
+  <text x="150" y="716" font-size="10" fill="#94a3b8">The 15th AAD byte is not lost — it rides in the carry and comes out in the next beat. AAD out = 14 + 1 = 15.</text>
+</svg>

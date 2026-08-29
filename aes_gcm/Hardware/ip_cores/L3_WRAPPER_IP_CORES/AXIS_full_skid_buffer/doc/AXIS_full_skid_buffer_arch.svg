@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#334155"/>
+    </marker>
+    <marker id="ax" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#dc2626"/>
+    </marker>
+    <marker id="ag" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L7,3 L0,6 Z" fill="#059669"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="900" height="600" fill="#ffffff"/>
+  <text x="24" y="32" font-size="19" font-weight="700" fill="#0f172a">AXIS_full_skid_buffer</text>
+  <text x="24" y="51" font-size="12" fill="#64748b">Breaks the combinational TREADY path between two AXIS ends, without losing a beat and without losing throughput.</text>
+
+  <!-- ================= 1 · THE PROBLEM ================= -->
+  <text x="24" y="88" font-size="13" font-weight="700" fill="#334155">1 · why it exists</text>
+
+  <rect x="60" y="104" width="360" height="96" rx="6" fill="#fef2f2" stroke="#dc2626"/>
+  <text x="80" y="126" font-size="11" font-weight="700" fill="#b91c1c">without a skid buffer</text>
+  <rect x="80" y="140" width="90" height="34" rx="3" fill="#fff" stroke="#94a3b8"/>
+  <text x="125" y="161" font-size="10" fill="#334155" text-anchor="middle">upstream</text>
+  <rect x="310" y="140" width="90" height="34" rx="3" fill="#fff" stroke="#94a3b8"/>
+  <text x="355" y="161" font-size="10" fill="#334155" text-anchor="middle">downstream</text>
+  <path d="M310,150 L172,150" stroke="#dc2626" stroke-width="1.8" fill="none" marker-end="url(#ax)"/>
+  <text x="241" y="144" font-size="9" font-weight="700" fill="#b91c1c" text-anchor="middle">tready</text>
+  <text x="241" y="180" font-size="9" fill="#b91c1c" text-anchor="middle">one long combinational path: the downstream's</text>
+  <text x="241" y="192" font-size="9" fill="#b91c1c" text-anchor="middle">logic ends up inside the upstream's timing</text>
+
+  <rect x="480" y="104" width="360" height="96" rx="6" fill="#f0fdf4" stroke="#059669"/>
+  <text x="500" y="126" font-size="11" font-weight="700" fill="#047857">with a skid buffer</text>
+  <rect x="500" y="140" width="80" height="34" rx="3" fill="#fff" stroke="#94a3b8"/>
+  <text x="540" y="161" font-size="10" fill="#334155" text-anchor="middle">upstream</text>
+  <rect x="620" y="140" width="66" height="34" rx="3" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="653" y="161" font-size="9" font-weight="700" fill="#6d28d9" text-anchor="middle">skid</text>
+  <rect x="726" y="140" width="94" height="34" rx="3" fill="#fff" stroke="#94a3b8"/>
+  <text x="773" y="161" font-size="10" fill="#334155" text-anchor="middle">downstream</text>
+  <path d="M618,150 L582,150" stroke="#059669" stroke-width="1.8" fill="none" marker-end="url(#ag)"/>
+  <path d="M724,150 L689,150" stroke="#059669" stroke-width="1.8" fill="none" marker-end="url(#ag)"/>
+  <text x="660" y="190" font-size="9" fill="#047857" text-anchor="middle">s_axis_tready comes straight out of a register → the path is cut in two</text>
+
+  <!-- ================= 2 · STRUCTURE ================= -->
+  <line x1="24" y1="222" x2="876" y2="222" stroke="#e2e8f0"/>
+  <text x="24" y="244" font-size="13" font-weight="700" fill="#334155">2 · two registers, three states</text>
+
+  <text x="150" y="300" font-size="11" font-weight="700" fill="#334155" text-anchor="end">s_axis</text>
+  <path d="M155,295 L215,295" stroke="#334155" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+
+  <rect x="220" y="272" width="150" height="46" rx="4" fill="#ede9fe" stroke="#8b5cf6"/>
+  <text x="295" y="292" font-size="11" font-weight="700" fill="#6d28d9" text-anchor="middle">r_skid</text>
+  <text x="295" y="308" font-size="9" fill="#7c3aed" text-anchor="middle">the beat behind</text>
+
+  <rect x="430" y="272" width="150" height="46" rx="4" fill="#dbeafe" stroke="#3b82f6"/>
+  <text x="505" y="292" font-size="11" font-weight="700" fill="#1d4ed8" text-anchor="middle">r_main</text>
+  <text x="505" y="308" font-size="9" fill="#3b82f6" text-anchor="middle">what m_axis sees</text>
+
+  <path d="M372,295 L428,295" stroke="#334155" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <text x="400" y="286" font-size="8" fill="#64748b" text-anchor="middle">promote</text>
+
+  <path d="M582,295 L650,295" stroke="#334155" stroke-width="1.8" fill="none" marker-end="url(#a)"/>
+  <text x="700" y="300" font-size="11" font-weight="700" fill="#334155">m_axis</text>
+
+  <text x="220" y="342" font-size="10" fill="#64748b">A beat can also skip r_skid entirely and go straight into r_main — that is the full-rate path.</text>
+
+  <!-- states -->
+  <g font-size="10" font-weight="700" text-anchor="middle">
+    <rect x="150" y="386" width="110" height="32" rx="16" fill="#94a3b8"/>
+    <text x="205" y="407" fill="#fff">S_EMPTY</text>
+    <rect x="380" y="386" width="110" height="32" rx="16" fill="#3b82f6"/>
+    <text x="435" y="407" fill="#fff">S_ONE</text>
+    <rect x="610" y="386" width="110" height="32" rx="16" fill="#8b5cf6"/>
+    <text x="665" y="407" fill="#fff">S_TWO</text>
+  </g>
+  <g stroke="#334155" stroke-width="1.4" fill="none">
+    <line x1="262" y1="402" x2="376" y2="402" marker-end="url(#a)"/>
+    <line x1="492" y1="396" x2="606" y2="396" marker-end="url(#a)"/>
+    <path d="M606,410 L492,410" marker-end="url(#a)"/>
+    <path d="M380,420 C330,450 230,450 190,422" marker-end="url(#a)"/>
+  </g>
+  <text x="319" y="394" font-size="9" fill="#64748b" text-anchor="middle">tvalid</text>
+  <text x="549" y="388" font-size="9" fill="#64748b" text-anchor="middle">tvalid &amp; !tready → skid it</text>
+  <text x="549" y="424" font-size="9" fill="#64748b" text-anchor="middle">tready → promote skid</text>
+  <text x="285" y="462" font-size="9" fill="#64748b" text-anchor="middle">!tvalid &amp; tready → drained</text>
+
+  <text x="740" y="393" font-size="9" fill="#dc2626">s_axis_tready = '0'</text>
+  <text x="740" y="406" font-size="9" fill="#94a3b8">(the only back-pressured state)</text>
+
+  <!-- ================= 3 · KEY POINTS ================= -->
+  <line x1="24" y1="490" x2="876" y2="490" stroke="#e2e8f0"/>
+  <text x="24" y="512" font-size="13" font-weight="700" fill="#334155">3 · the contract</text>
+  <text x="24" y="534" font-size="11" fill="#475569">• <tspan font-weight="700">s_axis_tready = '1' unless the state is S_TWO</tspan> — a pure function of the state register, so m_axis_tready never reaches the upstream combinationally.</text>
+  <text x="24" y="552" font-size="11" fill="#475569">• <tspan font-weight="700">No beat is ever lost.</tspan> r_skid exists exactly for the beat that was already accepted in the cycle the downstream stalled.</text>
+  <text x="24" y="570" font-size="11" fill="#475569">• <tspan font-weight="700">One beat per clock</tspan> at full rate: after one cycle of priming latency, S_ONE keeps consuming and accepting in the same cycle.</text>
+  <text x="24" y="588" font-size="11" fill="#475569">• Transparent to the payload: TDATA, TKEEP and TLAST come out exactly as they went in, in order.</text>
+</svg>
