@@ -29,6 +29,7 @@ u postojećem mrežnom sistemu.
 | `thesis/` | LaTeX izvor rada |
 | `ecdh/`, `sha3/`, `aes_gcm/` | po jezgru: `Hardware/` (zapakovana IP jezgra, RTL, testbenčevi), `Scripts/` (sinteza i merenja), `Software/` (referentni modeli, kod SHA-3 i drajver) |
 | `results/` | merni CSV-ovi iz kojih potiču sve brojke u radu |
+| `presentation/` | prezentacija javne odbrane rada |
 
 ## Provere i merenja
 
